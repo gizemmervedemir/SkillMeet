@@ -8,21 +8,30 @@
 {% if proposals %}
 <div class="list-group">
     {% for proposal in proposals %}
-    <div class="list-group-item mb-3 shadow-sm">
-        <p><strong>Match:</strong> {{ proposal.match.sender.username }} ⇄ {{ proposal.match.receiver.username }}</p>
-        <p><strong>Proposer:</strong> {{ proposal.proposer.username }}</p>
-        <p><strong>Location:</strong> {{ proposal.location }}</p>
-        <p><strong>Time:</strong> {{ proposal.datetime|date:"Y-m-d H:i" }}</p>
-        <p><strong>Message:</strong> {{ proposal.message|default:"(no message)" }}</p>
-        <p><strong>Status:</strong>
-            <span
-                class="badge {% if proposal.status == 'accepted' %}bg-success{% elif proposal.status == 'rejected' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
-                {{ proposal.status|title }}
-            </span>
-        </p>
+    <div class="list-group-item mb-4 shadow-sm rounded border">
+        <div class="d-flex justify-content-between">
+            <div>
+                <p class="mb-1"><strong>Match:</strong> {{ proposal.match.sender.username }} ⇄ {{
+                    proposal.match.receiver.username }}</p>
+                <p class="mb-1"><strong>Proposer:</strong> {{ proposal.proposer.username }}</p>
+                <p class="mb-1"><strong>Location:</strong> {{ proposal.location }}</p>
+                <p class="mb-1"><strong>Time:</strong> {{ proposal.datetime|date:"Y-m-d H:i" }}</p>
+                <p class="mb-1"><strong>Message:</strong> {{ proposal.message|default:"(no message)" }}</p>
+                <p class="mb-0">
+                    <strong>Status:</strong>
+                    <span class="badge 
+                        {% if proposal.status == 'accepted' %}bg-success
+                        {% elif proposal.status == 'rejected' %}bg-danger
+                        {% else %}bg-warning text-dark
+                        {% endif %}">
+                        {{ proposal.status|title }}
+                    </span>
+                </p>
+            </div>
+        </div>
 
         {% if proposal.status == 'pending' and proposal.proposer != user %}
-        <div class="mt-2">
+        <div class="mt-3">
             <a href="{% url 'handle_meeting_response' proposal.id 'accept' %}" class="btn btn-success btn-sm">✅
                 Accept</a>
             <a href="{% url 'handle_meeting_response' proposal.id 'reject' %}" class="btn btn-danger btn-sm">❌
@@ -33,10 +42,10 @@
     {% endfor %}
 </div>
 {% else %}
-<div class="alert alert-info">
-    No meeting proposals found.
-</div>
+<div class="alert alert-info shadow-sm">No meeting proposals found.</div>
 {% endif %}
 
-<a href="{% url 'profile' %}" class="btn btn-secondary mt-3">← Back to Profile</a>
+<div class="mt-4">
+    <a href="{% url 'profile' %}" class="btn btn-secondary">← Back to Profile</a>
+</div>
 {% endblock %}

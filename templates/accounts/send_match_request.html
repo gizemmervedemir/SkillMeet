@@ -3,21 +3,27 @@
 {% block title %}Send Match Request{% endblock %}
 
 {% block content %}
-<div class="card shadow-sm">
-    <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">Send Match Request to {{ receiver.username }}</h5>
-    </div>
-    <div class="card-body">
-        <form method="post">
-            {% csrf_token %}
-            <div class="mb-3">
-                <label for="message" class="form-label">Message (optional):</label>
-                <textarea name="message" class="form-control" rows="4"
-                    placeholder="Hi, I’d like to learn from you..."></textarea>
+<div class="row justify-content-center mt-5">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm border-primary">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Send Match Request to {{ receiver.username }}</h5>
             </div>
-            <button type="submit" class="btn btn-success">Send Request</button>
-            <a href="{% url 'profile' %}" class="btn btn-secondary ms-2">← Back to Profile</a>
-        </form>
+            <div class="card-body bg-light">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="form-group mb-4">
+                        <label for="message" class="form-label">Message (optional):</label>
+                        <textarea name="message" class="form-control" rows="4"
+                            placeholder="Hi, I’d like to learn from you..."></textarea>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'profile' %}" class="btn btn-secondary">← Back to Profile</a>
+                        <button type="submit" class="btn btn-success">Send Request</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

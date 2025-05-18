@@ -34,8 +34,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "accounts",  # custom user app
-    'widget_tweaks',
-
+    "widget_tweaks",  # for easier form customization
 ]
 
 MIDDLEWARE = [
@@ -53,7 +52,7 @@ ROOT_URLCONF = "SkillMeet.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],  # enable custom templates
+        "DIRS": [BASE_DIR / "templates"],  # enable custom templates directory
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -102,18 +101,17 @@ USE_I18N = True
 USE_TZ = True
 
 
-# ✅ Custom user model
-AUTH_USER_MODEL = 'accounts.CustomUser'
+# Custom user model
+AUTH_USER_MODEL = "accounts.CustomUser"
 
-# ✅ Login / Logout redirects
-LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/accounts/profile/'
-LOGOUT_REDIRECT_URL = '/accounts/login/'
+# Login / Logout redirects
+LOGIN_URL = "/accounts/login/"
+LOGIN_REDIRECT_URL = "/accounts/profile/"
+LOGOUT_REDIRECT_URL = "/accounts/login/"
 
 
-# Static files
+# Static files (CSS, JavaScript, Images)
 STATIC_URL = "static/"
-
 
 # Default auto field
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

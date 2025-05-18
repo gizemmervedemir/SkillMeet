@@ -1,0 +1,171 @@
+/* Base styling */
+body {
+    font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+    background-color: #f8f9fa;
+    color: #212529;
+    padding-top: 70px;
+    /* Navbar yüksekliği kadar boşluk */
+}
+
+/* Card tweaks */
+.card {
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+}
+
+/* Form elements */
+input,
+select,
+textarea {
+    border-radius: 6px !important;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ced4da;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #198754;
+    /* Bootstrap success green */
+    box-shadow: 0 0 5px rgba(25, 135, 84, 0.5);
+    outline: none;
+    background-color: #fff;
+}
+
+/* Form group styling for consistent spacing */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    margin-bottom: 0.4rem;
+    font-weight: 600;
+}
+
+/* Textarea height fix for skills/bio fields */
+textarea.form-control {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* Section spacing */
+section {
+    padding: 40px 0;
+}
+
+/* Buttons */
+.btn-success,
+.btn-outline-success {
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.btn-success:hover,
+.btn-outline-success:hover {
+    background-color: #14532d;
+    /* Slightly darker green */
+    color: #fff;
+}
+
+/* Dojo badge system */
+.dojo-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-weight: bold;
+    font-size: 0.9em;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    user-select: none;
+}
+
+.white-belt {
+    background-color: #aaa;
+}
+
+.yellow-belt {
+    background-color: #f1c40f;
+    color: #000;
+}
+
+.blue-belt {
+    background-color: #3498db;
+}
+
+.red-belt {
+    background-color: #e74c3c;
+}
+
+.master {
+    background-color: gold;
+    color: black;
+    animation: glow 1.5s infinite alternate;
+}
+
+@keyframes glow {
+    from {
+        box-shadow: 0 0 5px rgba(255, 215, 0, 0.6);
+    }
+
+    to {
+        box-shadow: 0 0 15px rgba(255, 215, 0, 1);
+    }
+}
+
+/* Notification banner */
+.notification-banner,
+.alert-warning,
+.alert-info {
+    background-color: #fff3cd;
+    padding: 12px 20px;
+    border-radius: 8px;
+    border-left: 4px solid #ffc107;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    font-weight: 600;
+}
+
+/* Chat bubbles */
+.chat-message {
+    padding: 10px 15px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    max-width: 75%;
+    word-wrap: break-word;
+    line-height: 1.3;
+    font-size: 1rem;
+}
+
+.chat-message.you {
+    background-color: #d1e7dd;
+    align-self: flex-end;
+    text-align: right;
+}
+
+.chat-message.them {
+    background-color: #e2e3e5;
+    align-self: flex-start;
+}
+
+/* Utilities */
+.text-small {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .chat-message {
+        max-width: 100%;
+    }
+
+    .form-group {
+        width: 100%;
+    }
+}

@@ -20,7 +20,11 @@ def register_view(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             form.save()
+            # Başarılı kayıt sonrası login sayfasına yönlendir
             return redirect('login')
+        else:
+            # Form hataları template'e gönderilir
+            return render(request, 'accounts/register.html', {'form': form})
     else:
         form = CustomUserCreationForm()
     return render(request, 'accounts/register.html', {'form': form})
@@ -32,6 +36,9 @@ def login_view(request):
         if form.is_valid():
             login(request, form.get_user())
             return redirect('profile')
+        else:
+            # Hatalı giriş formu tekrar gönderilir
+            return render(request, 'accounts/login.html', {'form': form})
     else:
         form = AuthenticationForm()
     return render(request, 'accounts/login.html', {'form': form})
@@ -84,7 +91,8 @@ def profile_view(request):
 @login_required
 def send_match_request(request, receiver_id):
     if not request.user.is_approved:
-        return HttpResponseForbidden("Only approved users can send match requests.")
+        # Daha güzel bir hata sayfasına yönlendirme yap
+        return render(request, 'accounts/not_approved.html', status=403)
 
     receiver = get_object_or_404(CustomUser, id=receiver_id)
 
@@ -241,7 +249,8 @@ def rate_user(request, user_id):
 @login_required
 def suggestions_view(request):
     if not request.user.is_approved:
-        return HttpResponseForbidden("Only approved users can get suggestions.")
+        # Daha güzel bir hata sayfasına yönlendirme yap
+        return render(request, 'accounts/not_approved.html', status=403)
 
     users = CustomUser.objects.filter(is_approved=True).exclude(id=request.user.id)
     suggestions = []
