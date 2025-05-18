@@ -1,96 +1,144 @@
-<h2>Your Profile</h2>
+<!DOCTYPE html>
+<html lang="en">
 
-<p><strong>Username:</strong> {{ user.username }}</p>
-<p><strong>Email:</strong> {{ user.email }}</p>
-<p><strong>City:</strong> {{ user.city }}</p>
-<p><strong>Skills to Teach:</strong> {{ user.skills_can_teach }}</p>
-<p><strong>Skills to Learn:</strong> {{ user.skills_want_to_learn }}</p>
-<p><strong>Dojo Level:</strong> {{ user.dojo_level }}</p>
+<head>
+    <meta charset="UTF-8">
+    <title>Your Profile</title>
+    <style>
+        .dojo-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 0.9em;
+            color: white;
+        }
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Update Profile</button>
-</form>
+        .white-belt {
+            background-color: #888;
+        }
 
-<hr>
+        .yellow-belt {
+            background-color: #f1c40f;
+        }
 
-<h3>Incoming Match Requests</h3>
-{% if match_requests %}
-<ul>
-    {% for req in match_requests %}
-    <li>
-        From: {{ req.sender.username }}<br>
-        Message: {{ req.message|default:"(no message)" }}<br>
-        <a href="{% url 'handle_match_request' req.id 'accept' %}">✅ Accept</a> |
-        <a href="{% url 'handle_match_request' req.id 'reject' %}">❌ Reject</a>
-    </li>
-    {% endfor %}
-</ul>
-{% else %}
-<p>No incoming match requests.</p>
-{% endif %}
+        .blue-belt {
+            background-color: #3498db;
+        }
 
-<hr>
+        .red-belt {
+            background-color: #e74c3c;
+        }
 
-<h3>Sent Match Requests</h3>
-{% if sent_requests %}
-<ul>
-    {% for req in sent_requests %}
-    <li>
-        To: {{ req.receiver.username }} —
-        Status:
-        {% if req.is_accepted == True %}
-        ✅ Accepted —
-        <a href="{% url 'conversation' req.receiver.id %}">💬 Chat</a> |
-        <a href="{% url 'rate_user' req.receiver.id %}">⭐ Rate</a>
-        {% elif req.is_accepted == False %}
-        ❌ Rejected
-        {% else %}
-        ⏳ Pending
-        {% endif %}
-    </li>
-    {% endfor %}
-</ul>
-{% else %}
-<p>You haven't sent any match requests.</p>
-{% endif %}
+        .master {
+            background-color: gold;
+            color: black;
+        }
+    </style>
+</head>
 
-<hr>
+<body>
 
-<h3>Your Matches</h3>
-{% if match_requests_received %}
-<ul>
-    {% for req in match_requests_received %}
-    <li>
-        {{ req.sender.username }} —
-        <a href="{% url 'conversation' req.sender.id %}">💬 Chat</a> |
-        <a href="{% url 'rate_user' req.sender.id %}">⭐ Rate</a>
-    </li>
-    {% endfor %}
-</ul>
-{% else %}
-<p>You don't have any accepted matches yet.</p>
-{% endif %}
+    <h2>Your Profile</h2>
 
-<hr>
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>City:</strong> {{ user.city }}</p>
+    <p><strong>Skills to Teach:</strong> {{ user.skills_can_teach }}</p>
+    <p><strong>Skills to Learn:</strong> {{ user.skills_want_to_learn }}</p>
+    <p><strong>Dojo Level:</strong>
+        <span class="dojo-badge {{ user.dojo_level|slugify }}">
+            {{ user.dojo_level }}
+        </span>
+    </p>
 
-<h3>Ratings</h3>
-{% if avg_rating %}
-<p><strong>Average Rating:</strong> {{ avg_rating|floatformat:1 }} / 5</p>
-{% else %}
-<p>No ratings yet.</p>
-{% endif %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Update Profile</button>
+    </form>
 
-{% if ratings %}
-<ul>
-    {% for r in ratings %}
-    <li>
-        From: {{ r.rater.username }}<br>
-        Score: {{ r.score }}<br>
-        Comment: {{ r.comment|default:"(No comment)" }}<br>
-        Date: {{ r.created_at|date:"Y-m-d H:i" }}
-    </li>
-    {% endfor %}
-</ul>
-{% endif %}
+    <hr>
+
+    <h3>Incoming Match Requests</h3>
+    {% if match_requests %}
+    <ul>
+        {% for req in match_requests %}
+        <li>
+            From: {{ req.sender.username }}<br>
+            Message: {{ req.message|default:"(no message)" }}<br>
+            <a href="{% url 'handle_match_request' req.id 'accept' %}">✅ Accept</a> |
+            <a href="{% url 'handle_match_request' req.id 'reject' %}">❌ Reject</a>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No incoming match requests.</p>
+    {% endif %}
+
+    <hr>
+
+    <h3>Sent Match Requests</h3>
+    {% if sent_requests %}
+    <ul>
+        {% for req in sent_requests %}
+        <li>
+            To: {{ req.receiver.username }} —
+            Status:
+            {% if req.is_accepted == True %}
+            ✅ Accepted —
+            <a href="{% url 'conversation' req.receiver.id %}">💬 Chat</a> |
+            <a href="{% url 'rate_user' req.receiver.id %}">⭐ Rate</a>
+            {% elif req.is_accepted == False %}
+            ❌ Rejected
+            {% else %}
+            ⏳ Pending
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>You haven't sent any match requests.</p>
+    {% endif %}
+
+    <hr>
+
+    <h3>Your Matches</h3>
+    {% if match_requests_received %}
+    <ul>
+        {% for req in match_requests_received %}
+        <li>
+            {{ req.sender.username }} —
+            <a href="{% url 'conversation' req.sender.id %}">💬 Chat</a> |
+            <a href="{% url 'rate_user' req.sender.id %}">⭐ Rate</a>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>You don't have any accepted matches yet.</p>
+    {% endif %}
+
+    <hr>
+
+    <h3>Ratings</h3>
+    {% if avg_rating %}
+    <p><strong>Average Rating:</strong> {{ avg_rating|floatformat:1 }} / 5</p>
+    {% else %}
+    <p>No ratings yet.</p>
+    {% endif %}
+
+    {% if ratings %}
+    <ul>
+        {% for r in ratings %}
+        <li>
+            From: {{ r.rater.username }}<br>
+            Score: {{ r.score }}<br>
+            Comment: {{ r.comment|default:"(No comment)" }}<br>
+            Date: {{ r.created_at|date:"Y-m-d H:i" }}
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+</body>
+
+</html>
