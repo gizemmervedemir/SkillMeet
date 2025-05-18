@@ -7,7 +7,7 @@ from django.db.models import Q
 from datetime import datetime
 
 from .forms import CustomUserCreationForm, CustomUserUpdateForm
-from .models import CustomUser, MatchRequest, Message, MeetingProposal
+from .models import CustomUser, MatchRequest, Message, MeetingProposal, Rating
 
 
 def register_view(request):
@@ -168,3 +168,27 @@ def list_meetings(request):
     ).order_by('-created_at')
 
     return render(request, 'accounts/meeting_list.html', {'proposals': proposals})
+
+
+@login_required
+def rate_user(request, user_id):
+    target = get_object_or_404(CustomUser, id=user_id)
+
+    if request.method == 'POST':
+        score = int(request.POST.get('score'))
+        comment = request.POST.get('comment', '')
+
+        if score < 1 or score > 5:
+            return HttpResponseForbidden("Invalid score.")
+
+        Rating.objects.create(
+            rater=request.user,
+            rated_user=target,
+            score=score,
+            comment=comment
+        )
+
+        target.update_dojo_level()
+        return redirect('profile')
+
+    return render(request, 'accounts/rate_user.html', {'target': target})

@@ -14,6 +14,28 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.username
 
+    def update_dojo_level(self):
+        ratings = self.received_ratings.all()
+        total = ratings.count()
+        if total == 0:
+            self.dojo_level = "White Belt"
+            return
+
+        avg = sum(r.score for r in ratings) / total
+
+        if total >= 10 and avg >= 4.8:
+            self.dojo_level = "Master"
+        elif avg >= 4.6:
+            self.dojo_level = "Red Belt"
+        elif avg >= 4.0:
+            self.dojo_level = "Blue Belt"
+        elif avg >= 3.0:
+            self.dojo_level = "Yellow Belt"
+        else:
+            self.dojo_level = "White Belt"
+
+        self.save()
+
 
 class MatchRequest(models.Model):
     sender = models.ForeignKey(
@@ -68,3 +90,22 @@ class MeetingProposal(models.Model):
 
     def __str__(self):
         return f"{self.match.sender} ⇄ {self.match.receiver} on {self.datetime} ({self.status})"
+
+
+class Rating(models.Model):
+    rater = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='given_ratings'
+    )
+    rated_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='received_ratings'
+    )
+    score = models.IntegerField()  # 1 to 5
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.rater.username} → {self.rated_user.username}: {self.score}"

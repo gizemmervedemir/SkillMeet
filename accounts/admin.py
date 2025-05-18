@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, MatchRequest, Message, MeetingProposal
+from .models import CustomUser, MatchRequest, Message, MeetingProposal, Rating
 
 
 class CustomUserAdmin(UserAdmin):
@@ -39,7 +39,14 @@ class MeetingProposalAdmin(admin.ModelAdmin):
     search_fields = ('match__sender__username', 'match__receiver__username', 'location')
 
 
+class RatingAdmin(admin.ModelAdmin):
+    list_display = ('rater', 'rated_user', 'score', 'created_at')
+    list_filter = ('score', 'created_at')
+    search_fields = ('rater__username', 'rated_user__username', 'comment')
+
+
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(MatchRequest, MatchRequestAdmin)
 admin.site.register(Message, MessageAdmin)
 admin.site.register(MeetingProposal, MeetingProposalAdmin)
+admin.site.register(Rating, RatingAdmin)
