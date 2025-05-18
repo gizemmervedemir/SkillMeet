@@ -10,11 +10,15 @@ from .forms import CustomUserCreationForm, CustomUserUpdateForm
 from .models import CustomUser, MatchRequest, Message, MeetingProposal, Rating, Notification
 
 
+# ---------------------------
+# AUTHENTICATION VIEWS
+# ---------------------------
+
 def register_view(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            form.save()
             return redirect('login')
     else:
         form = CustomUserCreationForm()
@@ -38,6 +42,10 @@ def logout_view(request):
     return redirect('login')
 
 
+# ---------------------------
+# PROFILE
+# ---------------------------
+
 @login_required
 def profile_view(request):
     if request.method == 'POST':
@@ -51,13 +59,8 @@ def profile_view(request):
     match_requests = MatchRequest.objects.filter(receiver=request.user, is_accepted=None)
     sent_requests = MatchRequest.objects.filter(sender=request.user)
     received_matches = MatchRequest.objects.filter(receiver=request.user, is_accepted=True)
-
     ratings = request.user.received_ratings.all()
-    avg_rating = (
-        sum(r.score for r in ratings) / ratings.count()
-        if ratings.exists() else None
-    )
-
+    avg_rating = sum(r.score for r in ratings) / ratings.count() if ratings.exists() else None
     notifications = request.user.notifications.filter(is_read=False)
     notifications.update(is_read=True)
 
@@ -73,6 +76,10 @@ def profile_view(request):
     })
 
 
+# ---------------------------
+# MATCH SYSTEM
+# ---------------------------
+
 @login_required
 def send_match_request(request, receiver_id):
     if not request.user.is_approved:
@@ -83,12 +90,7 @@ def send_match_request(request, receiver_id):
     if request.method == 'POST':
         message = request.POST.get('message', '')
         MatchRequest.objects.create(sender=request.user, receiver=receiver, message=message)
-
-        Notification.objects.create(
-            user=receiver,
-            message=f"You received a match request from {request.user.username}"
-        )
-
+        Notification.objects.create(user=receiver, message=f"You received a match request from {request.user.username}")
         return redirect('profile')
 
     return render(request, 'accounts/send_match_request.html', {'receiver': receiver})
@@ -100,18 +102,17 @@ def handle_match_request(request, request_id, action):
 
     if action == 'accept':
         match_request.is_accepted = True
-
-        Notification.objects.create(
-            user=match_request.sender,
-            message=f"Your match request was accepted by {request.user.username}"
-        )
-
+        Notification.objects.create(user=match_request.sender, message=f"Your match request was accepted by {request.user.username}")
     elif action == 'reject':
         match_request.is_accepted = False
 
     match_request.save()
     return redirect('profile')
 
+
+# ---------------------------
+# CHAT SYSTEM
+# ---------------------------
 
 @login_required
 def conversation_view(request, other_id):
@@ -134,12 +135,7 @@ def conversation_view(request, other_id):
         text = request.POST.get('text', '').strip()
         if text:
             Message.objects.create(sender=request.user, receiver=other, text=text)
-
-            Notification.objects.create(
-                user=other,
-                message=f"New message from {request.user.username}"
-            )
-
+            Notification.objects.create(user=other, message=f"New message from {request.user.username}")
         return redirect('conversation', other_id=other.id)
 
     return render(request, 'accounts/conversation.html', {
@@ -147,6 +143,10 @@ def conversation_view(request, other_id):
         'messages': messages,
     })
 
+
+# ---------------------------
+# MEETING SYSTEM
+# ---------------------------
 
 @login_required
 def propose_meeting(request, match_id):
@@ -185,8 +185,8 @@ def handle_meeting_response(request, proposal_id, action):
         proposal.status = 'accepted'
     elif action == 'reject':
         proposal.status = 'rejected'
-    proposal.save()
 
+    proposal.save()
     return redirect('profile')
 
 
@@ -199,6 +199,10 @@ def list_meetings(request):
 
     return render(request, 'accounts/meeting_list.html', {'proposals': proposals})
 
+
+# ---------------------------
+# RATING SYSTEM
+# ---------------------------
 
 @login_required
 def rate_user(request, user_id):

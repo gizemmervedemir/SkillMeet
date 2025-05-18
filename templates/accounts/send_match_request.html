@@ -1,8 +1,24 @@
-<h2>Send Match Request to {{ receiver.username }}</h2>
+<!DOCTYPE html>
+<html lang="en">
 
-<form method="post">
-    {% csrf_token %}
-    <label>Message:</label><br>
-    <textarea name="message" rows="4" cols="40"></textarea><br><br>
-    <button type="submit">Send Request</button>
-</form>
+<head>
+    <meta charset="UTF-8">
+    <title>Send Match Request</title>
+</head>
+
+<body>
+
+    <h2>Send Match Request to {{ receiver.username }}</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        <label for="message">Message (optional):</label><br>
+        <textarea name="message" rows="4" cols="40" placeholder="Hi, I’d like to learn from you..."></textarea><br><br>
+        <button type="submit">Send Request</button>
+    </form>
+
+    <p><a href="{% url 'profile' %}">← Back to Profile</a></p>
+
+</body>
+
+</html>

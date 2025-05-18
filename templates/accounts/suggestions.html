@@ -1,0 +1,19 @@
+<h2>Suggested Matches</h2>
+
+{% if suggestions %}
+<ul>
+    {% for user, score in suggestions %}
+    <li>
+        <strong>{{ user.username }}</strong> — Score: {{ score }}<br>
+        City: {{ user.city }}<br>
+        Wants to learn: {{ user.skills_want_to_learn }}<br>
+        Can teach: {{ user.skills_can_teach }}<br>
+        <a href="{% url 'send_match_request' user.id %}">🤝 Send Match Request</a>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No suitable matches found yet.</p>
+{% endif %}
+
+<a href="{% url 'profile' %}">← Back to Profile</a>
