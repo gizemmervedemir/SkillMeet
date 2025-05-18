@@ -41,8 +41,9 @@
         To: {{ req.receiver.username }} —
         Status:
         {% if req.is_accepted == True %}
-        ✅ Accepted
-        — <a href="{% url 'conversation' req.receiver.id %}">💬 Chat</a>
+        ✅ Accepted —
+        <a href="{% url 'conversation' req.receiver.id %}">💬 Chat</a> |
+        <a href="{% url 'rate_user' req.receiver.id %}">⭐ Rate</a>
         {% elif req.is_accepted == False %}
         ❌ Rejected
         {% else %}
@@ -62,10 +63,34 @@
 <ul>
     {% for req in match_requests_received %}
     <li>
-        {{ req.sender.username }} — <a href="{% url 'conversation' req.sender.id %}">💬 Chat</a>
+        {{ req.sender.username }} —
+        <a href="{% url 'conversation' req.sender.id %}">💬 Chat</a> |
+        <a href="{% url 'rate_user' req.sender.id %}">⭐ Rate</a>
     </li>
     {% endfor %}
 </ul>
 {% else %}
 <p>You don't have any accepted matches yet.</p>
+{% endif %}
+
+<hr>
+
+<h3>Ratings</h3>
+{% if avg_rating %}
+<p><strong>Average Rating:</strong> {{ avg_rating|floatformat:1 }} / 5</p>
+{% else %}
+<p>No ratings yet.</p>
+{% endif %}
+
+{% if ratings %}
+<ul>
+    {% for r in ratings %}
+    <li>
+        From: {{ r.rater.username }}<br>
+        Score: {{ r.score }}<br>
+        Comment: {{ r.comment|default:"(No comment)" }}<br>
+        Date: {{ r.created_at|date:"Y-m-d H:i" }}
+    </li>
+    {% endfor %}
+</ul>
 {% endif %}
