@@ -1,24 +1,42 @@
-<h2>Your Meeting Proposals</h2>
+{% extends 'base.html' %}
 
-<ul>
+{% block title %}Your Meeting Proposals{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">📅 Your Meeting Proposals</h2>
+
+{% if proposals %}
+<div class="list-group">
     {% for proposal in proposals %}
-    <li>
-        Match: {{ proposal.match.sender.username }} ⇄ {{ proposal.match.receiver.username }}<br>
-        Proposer: {{ proposal.proposer.username }}<br>
-        Location: {{ proposal.location }}<br>
-        Time: {{ proposal.datetime }}<br>
-        Message: {{ proposal.message|default:"(no message)" }}<br>
-        Status: {{ proposal.status|title }}<br>
+    <div class="list-group-item mb-3 shadow-sm">
+        <p><strong>Match:</strong> {{ proposal.match.sender.username }} ⇄ {{ proposal.match.receiver.username }}</p>
+        <p><strong>Proposer:</strong> {{ proposal.proposer.username }}</p>
+        <p><strong>Location:</strong> {{ proposal.location }}</p>
+        <p><strong>Time:</strong> {{ proposal.datetime|date:"Y-m-d H:i" }}</p>
+        <p><strong>Message:</strong> {{ proposal.message|default:"(no message)" }}</p>
+        <p><strong>Status:</strong>
+            <span
+                class="badge {% if proposal.status == 'accepted' %}bg-success{% elif proposal.status == 'rejected' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                {{ proposal.status|title }}
+            </span>
+        </p>
 
         {% if proposal.status == 'pending' and proposal.proposer != user %}
-        <a href="{% url 'handle_meeting_response' proposal.id 'accept' %}">✅ Accept</a> |
-        <a href="{% url 'handle_meeting_response' proposal.id 'reject' %}">❌ Reject</a>
+        <div class="mt-2">
+            <a href="{% url 'handle_meeting_response' proposal.id 'accept' %}" class="btn btn-success btn-sm">✅
+                Accept</a>
+            <a href="{% url 'handle_meeting_response' proposal.id 'reject' %}" class="btn btn-danger btn-sm">❌
+                Reject</a>
+        </div>
         {% endif %}
-    </li>
-    <hr>
-    {% empty %}
-    <p>No meeting proposals found.</p>
+    </div>
     {% endfor %}
-</ul>
+</div>
+{% else %}
+<div class="alert alert-info">
+    No meeting proposals found.
+</div>
+{% endif %}
 
-<a href="{% url 'profile' %}">← Back to Profile</a>
+<a href="{% url 'profile' %}" class="btn btn-secondary mt-3">← Back to Profile</a>
+{% endblock %}

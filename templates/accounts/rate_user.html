@@ -1,14 +1,29 @@
-<h2>Rate {{ target.username }}</h2>
+{% extends 'base.html' %}
 
-<form method="post">
-    {% csrf_token %}
-    <label for="score">Score (1–5):</label><br>
-    <input type="number" name="score" min="1" max="5" required><br><br>
+{% block title %}Rate {{ target.username }}{% endblock %}
 
-    <label for="comment">Comment (optional):</label><br>
-    <textarea name="comment" rows="4" cols="50"></textarea><br><br>
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0">⭐ Rate {{ target.username }}</h5>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
 
-    <button type="submit">Submit Rating</button>
-</form>
+            <div class="mb-3">
+                <label for="score" class="form-label">Score (1–5):</label>
+                <input type="number" name="score" class="form-control" min="1" max="5" required>
+            </div>
 
-<a href="{% url 'profile' %}">← Back to Profile</a>
+            <div class="mb-3">
+                <label for="comment" class="form-label">Comment (optional):</label>
+                <textarea name="comment" class="form-control" rows="4"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-success">Submit Rating</button>
+            <a href="{% url 'profile' %}" class="btn btn-secondary ms-2">← Back to Profile</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

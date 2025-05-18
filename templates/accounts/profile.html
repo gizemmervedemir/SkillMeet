@@ -1,163 +1,154 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base.html' %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>Your Profile</title>
-    <style>
-        .dojo-badge {
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-weight: bold;
-            font-size: 0.9em;
-            color: white;
-        }
+{% block title %}Your Profile{% endblock %}
 
-        .white-belt {
-            background-color: #888;
-        }
+{% block content %}
+<style>
+    .dojo-badge {
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-weight: bold;
+        font-size: 0.9em;
+        color: white;
+    }
 
-        .yellow-belt {
-            background-color: #f1c40f;
-        }
+    .white-belt {
+        background-color: #888;
+    }
 
-        .blue-belt {
-            background-color: #3498db;
-        }
+    .yellow-belt {
+        background-color: #f1c40f;
+        color: black;
+    }
 
-        .red-belt {
-            background-color: #e74c3c;
-        }
+    .blue-belt {
+        background-color: #3498db;
+    }
 
-        .master {
-            background-color: gold;
-            color: black;
-        }
+    .red-belt {
+        background-color: #e74c3c;
+    }
 
-        .notification-banner {
-            background-color: #ffeeba;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            border: 1px solid #f0ad4e;
-        }
-    </style>
-</head>
+    .master {
+        background-color: gold;
+        color: black;
+    }
+</style>
 
-<body>
+{% if notifications %}
+<div class="alert alert-warning">
+    <strong>🔔 You have {{ notifications.count }} new notification{{ notifications.count|pluralize }}:</strong>
+    <ul>
+        {% for n in notifications %}
+        <li>{{ n.message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
 
-    {% if notifications %}
-    <div class="notification-banner">
-        <strong>🔔 You have {{ notifications.count }} new notification{{ notifications.count|pluralize }}:</strong>
-        <ul>
-            {% for n in notifications %}
-            <li>{{ n.message }}</li>
-            {% endfor %}
-        </ul>
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-dark text-white">
+        <h5 class="mb-0">👤 Your Profile</h5>
     </div>
-    {% endif %}
+    <div class="card-body">
+        <p><strong>Username:</strong> {{ user.username }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>City:</strong> {{ user.city }}</p>
+        <p><strong>Skills to Teach:</strong> {{ user.skills_can_teach }}</p>
+        <p><strong>Skills to Learn:</strong> {{ user.skills_want_to_learn }}</p>
+        <p><strong>Dojo Level:</strong>
+            <span class="dojo-badge {{ user.dojo_level|slugify }}">
+                {{ user.dojo_level }}
+            </span>
+        </p>
 
-    <h2>Your Profile</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Update Profile</button>
+        </form>
+    </div>
+</div>
 
-    <p><strong>Username:</strong> {{ user.username }}</p>
-    <p><strong>Email:</strong> {{ user.email }}</p>
-    <p><strong>City:</strong> {{ user.city }}</p>
-    <p><strong>Skills to Teach:</strong> {{ user.skills_can_teach }}</p>
-    <p><strong>Skills to Learn:</strong> {{ user.skills_want_to_learn }}</p>
-    <p><strong>Dojo Level:</strong>
-        <span class="dojo-badge {{ user.dojo_level|slugify }}">
-            {{ user.dojo_level }}
-        </span>
-    </p>
+<hr>
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Update Profile</button>
-    </form>
+<h4>📥 Incoming Match Requests</h4>
+{% if match_requests %}
+<ul class="list-group mb-4">
+    {% for req in match_requests %}
+    <li class="list-group-item">
+        <strong>From:</strong> {{ req.sender.username }}<br>
+        <strong>Message:</strong> {{ req.message|default:"(no message)" }}<br>
+        <a href="{% url 'handle_match_request' req.id 'accept' %}" class="btn btn-success btn-sm mt-2">✅ Accept</a>
+        <a href="{% url 'handle_match_request' req.id 'reject' %}" class="btn btn-danger btn-sm mt-2">❌ Reject</a>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p class="text-muted">No incoming match requests.</p>
+{% endif %}
 
-    <hr>
+<hr>
 
-    <h3>Incoming Match Requests</h3>
-    {% if match_requests %}
-    <ul>
-        {% for req in match_requests %}
-        <li>
-            From: {{ req.sender.username }}<br>
-            Message: {{ req.message|default:"(no message)" }}<br>
-            <a href="{% url 'handle_match_request' req.id 'accept' %}">✅ Accept</a> |
-            <a href="{% url 'handle_match_request' req.id 'reject' %}">❌ Reject</a>
-        </li>
-        {% endfor %}
-    </ul>
-    {% else %}
-    <p>No incoming match requests.</p>
-    {% endif %}
+<h4>📤 Sent Match Requests</h4>
+{% if sent_requests %}
+<ul class="list-group mb-4">
+    {% for req in sent_requests %}
+    <li class="list-group-item">
+        <strong>To:</strong> {{ req.receiver.username }}<br>
+        <strong>Status:</strong>
+        {% if req.is_accepted == True %}
+        ✅ Accepted —
+        <a href="{% url 'conversation' req.receiver.id %}" class="btn btn-outline-primary btn-sm">💬 Chat</a>
+        <a href="{% url 'rate_user' req.receiver.id %}" class="btn btn-outline-warning btn-sm">⭐ Rate</a>
+        {% elif req.is_accepted == False %}
+        ❌ Rejected
+        {% else %}
+        ⏳ Pending
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p class="text-muted">You haven't sent any match requests.</p>
+{% endif %}
 
-    <hr>
+<hr>
 
-    <h3>Sent Match Requests</h3>
-    {% if sent_requests %}
-    <ul>
-        {% for req in sent_requests %}
-        <li>
-            To: {{ req.receiver.username }} —
-            Status:
-            {% if req.is_accepted == True %}
-            ✅ Accepted —
-            <a href="{% url 'conversation' req.receiver.id %}">💬 Chat</a> |
-            <a href="{% url 'rate_user' req.receiver.id %}">⭐ Rate</a>
-            {% elif req.is_accepted == False %}
-            ❌ Rejected
-            {% else %}
-            ⏳ Pending
-            {% endif %}
-        </li>
-        {% endfor %}
-    </ul>
-    {% else %}
-    <p>You haven't sent any match requests.</p>
-    {% endif %}
+<h4>🤝 Your Matches</h4>
+{% if match_requests_received %}
+<ul class="list-group mb-4">
+    {% for req in match_requests_received %}
+    <li class="list-group-item">
+        {{ req.sender.username }} —
+        <a href="{% url 'conversation' req.sender.id %}" class="btn btn-outline-primary btn-sm">💬 Chat</a>
+        <a href="{% url 'rate_user' req.sender.id %}" class="btn btn-outline-warning btn-sm">⭐ Rate</a>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p class="text-muted">You don't have any accepted matches yet.</p>
+{% endif %}
 
-    <hr>
+<hr>
 
-    <h3>Your Matches</h3>
-    {% if match_requests_received %}
-    <ul>
-        {% for req in match_requests_received %}
-        <li>
-            {{ req.sender.username }} —
-            <a href="{% url 'conversation' req.sender.id %}">💬 Chat</a> |
-            <a href="{% url 'rate_user' req.sender.id %}">⭐ Rate</a>
-        </li>
-        {% endfor %}
-    </ul>
-    {% else %}
-    <p>You don't have any accepted matches yet.</p>
-    {% endif %}
+<h4>⭐ Ratings</h4>
+{% if avg_rating %}
+<p><strong>Average Rating:</strong> {{ avg_rating|floatformat:1 }} / 5</p>
+{% else %}
+<p class="text-muted">No ratings yet.</p>
+{% endif %}
 
-    <hr>
-
-    <h3>Ratings</h3>
-    {% if avg_rating %}
-    <p><strong>Average Rating:</strong> {{ avg_rating|floatformat:1 }} / 5</p>
-    {% else %}
-    <p>No ratings yet.</p>
-    {% endif %}
-
-    {% if ratings %}
-    <ul>
-        {% for r in ratings %}
-        <li>
-            From: {{ r.rater.username }}<br>
-            Score: {{ r.score }}<br>
-            Comment: {{ r.comment|default:"(No comment)" }}<br>
-            Date: {{ r.created_at|date:"Y-m-d H:i" }}
-        </li>
-        {% endfor %}
-    </ul>
-    {% endif %}
-
-</body>
-
-</html>
+{% if ratings %}
+<ul class="list-group">
+    {% for r in ratings %}
+    <li class="list-group-item">
+        <strong>From:</strong> {{ r.rater.username }}<br>
+        <strong>Score:</strong> {{ r.score }}<br>
+        <strong>Comment:</strong> {{ r.comment|default:"(No comment)" }}<br>
+        <small class="text-muted">Date: {{ r.created_at|date:"Y-m-d H:i" }}</small>
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

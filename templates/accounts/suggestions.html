@@ -1,19 +1,33 @@
-<h2>Suggested Matches</h2>
+{% extends 'base.html' %}
+
+{% block title %}Suggested Matches{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">🎯 Suggested Matches</h2>
 
 {% if suggestions %}
-<ul>
+<div class="row">
     {% for user, score in suggestions %}
-    <li>
-        <strong>{{ user.username }}</strong> — Score: {{ score }}<br>
-        City: {{ user.city }}<br>
-        Wants to learn: {{ user.skills_want_to_learn }}<br>
-        Can teach: {{ user.skills_can_teach }}<br>
-        <a href="{% url 'send_match_request' user.id %}">🤝 Send Match Request</a>
-    </li>
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="card-title">{{ user.username }}</h5>
+                <p class="card-text">
+                    <strong>Match Score:</strong> {{ score }}<br>
+                    <strong>City:</strong> {{ user.city }}<br>
+                    <strong>Wants to learn:</strong> {{ user.skills_want_to_learn }}<br>
+                    <strong>Can teach:</strong> {{ user.skills_can_teach }}
+                </p>
+                <a href="{% url 'send_match_request' user.id %}" class="btn btn-primary btn-sm">🤝 Send Match
+                    Request</a>
+            </div>
+        </div>
+    </div>
     {% endfor %}
-</ul>
+</div>
 {% else %}
-<p>No suitable matches found yet.</p>
+<div class="alert alert-info">No suitable matches found yet.</div>
 {% endif %}
 
-<a href="{% url 'profile' %}">← Back to Profile</a>
+<a href="{% url 'profile' %}" class="btn btn-secondary mt-3">← Back to Profile</a>
+{% endblock %}

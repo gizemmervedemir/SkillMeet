@@ -1,24 +1,41 @@
-<h2>Chat with {{ other.username }}</h2>
+{% extends 'base.html' %}
 
-<div style="border:1px solid #ccc; padding:10px; max-width:600px;">
-    {% for msg in messages %}
-    <p>
-        <strong>
-            {% if msg.sender == user %}You{% else %}{{ other.username }}{% endif %}
-        </strong>
-        ({{ msg.timestamp|date:"Y-m-d H:i" }}):
-        <br>{{ msg.text|linebreaks }}
-    </p>
-    <hr>
-    {% empty %}
-    <p>No messages yet.</p>
-    {% endfor %}
+{% block title %}Chat with {{ other.username }}{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0">Chat with {{ other.username }}</h5>
+    </div>
+    <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+        {% if messages %}
+        {% for msg in messages %}
+        <div class="mb-3">
+            <strong class="{% if msg.sender == user %}text-primary{% else %}text-secondary{% endif %}">
+                {% if msg.sender == user %}You{% else %}{{ other.username }}{% endif %}
+            </strong>
+            <small class="text-muted">({{ msg.timestamp|date:"Y-m-d H:i" }})</small>
+            <p class="mt-1 mb-0">{{ msg.text|linebreaks }}</p>
+            <hr>
+        </div>
+        {% endfor %}
+        {% else %}
+        <p class="text-muted">No messages yet.</p>
+        {% endif %}
+    </div>
 </div>
 
-<form method="post">
-    {% csrf_token %}
-    <textarea name="text" rows="3" cols="60" placeholder="Type your message..."></textarea><br>
-    <button type="submit">Send</button>
-</form>
-
-<p><a href="{% url 'profile' %}">← Back to Profile</a></p>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="text" class="form-label">Your Message:</label>
+                <textarea name="text" class="form-control" rows="3" placeholder="Type your message..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-success">Send</button>
+            <a href="{% url 'profile' %}" class="btn btn-secondary ms-2">← Back to Profile</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

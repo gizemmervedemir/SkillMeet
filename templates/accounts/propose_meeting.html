@@ -1,17 +1,34 @@
-<h2>Propose a Meeting</h2>
+{% extends 'base.html' %}
 
-<form method="post">
-    {% csrf_token %}
-    <label>Location:</label><br>
-    <input type="text" name="location" required><br><br>
+{% block title %}Propose a Meeting{% endblock %}
 
-    <label>Date and Time:</label><br>
-    <input type="datetime-local" name="datetime" required><br><br>
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">📅 Propose a Meeting</h5>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
 
-    <label>Message (optional):</label><br>
-    <textarea name="message" rows="4" cols="40"></textarea><br><br>
+            <div class="mb-3">
+                <label for="location" class="form-label">Location:</label>
+                <input type="text" name="location" class="form-control" required>
+            </div>
 
-    <button type="submit">Send Proposal</button>
-</form>
+            <div class="mb-3">
+                <label for="datetime" class="form-label">Date and Time:</label>
+                <input type="datetime-local" name="datetime" class="form-control" required>
+            </div>
 
-<a href="{% url 'profile' %}">← Back to Profile</a>
+            <div class="mb-3">
+                <label for="message" class="form-label">Message (optional):</label>
+                <textarea name="message" class="form-control" rows="4"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-success">Send Proposal</button>
+            <a href="{% url 'profile' %}" class="btn btn-secondary ms-2">← Back to Profile</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
