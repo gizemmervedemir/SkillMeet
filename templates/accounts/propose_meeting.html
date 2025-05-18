@@ -1,0 +1,17 @@
+<h2>Propose a Meeting</h2>
+
+<form method="post">
+    {% csrf_token %}
+    <label>Location:</label><br>
+    <input type="text" name="location" required><br><br>
+
+    <label>Date and Time:</label><br>
+    <input type="datetime-local" name="datetime" required><br><br>
+
+    <label>Message (optional):</label><br>
+    <textarea name="message" rows="4" cols="40"></textarea><br><br>
+
+    <button type="submit">Send Proposal</button>
+</form>
+
+<a href="{% url 'profile' %}">← Back to Profile</a>

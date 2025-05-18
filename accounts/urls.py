@@ -16,4 +16,9 @@ urlpatterns = [
 
     # Chat system
     path('chat/<int:other_id>/', views.conversation_view, name='conversation'),
+
+    # Meeting proposals
+    path('meeting/propose/<int:match_id>/', views.propose_meeting, name='propose_meeting'),
+    path('meeting/respond/<int:proposal_id>/<str:action>/', views.handle_meeting_response, name='handle_meeting_response'),
+    path('meetings/', views.list_meetings, name='meeting_list'),
 ]

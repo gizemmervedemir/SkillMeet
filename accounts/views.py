@@ -4,9 +4,10 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from django.db.models import Q
+from datetime import datetime
 
 from .forms import CustomUserCreationForm, CustomUserUpdateForm
-from .models import CustomUser, MatchRequest, Message
+from .models import CustomUser, MatchRequest, Message, MeetingProposal
 
 
 def register_view(request):
@@ -92,7 +93,6 @@ def handle_match_request(request, request_id, action):
 def conversation_view(request, other_id):
     other = get_object_or_404(CustomUser, id=other_id)
 
-    # Only allow if users are matched
     matched = MatchRequest.objects.filter(
         Q(sender=request.user, receiver=other, is_accepted=True) |
         Q(sender=other, receiver=request.user, is_accepted=True)
@@ -101,7 +101,6 @@ def conversation_view(request, other_id):
     if not matched:
         return HttpResponseForbidden("You must be matched to chat.")
 
-    # Fetch chat messages
     messages = Message.objects.filter(
         Q(sender=request.user, receiver=other) |
         Q(sender=other, receiver=request.user)
@@ -117,3 +116,55 @@ def conversation_view(request, other_id):
         'other': other,
         'messages': messages,
     })
+
+
+@login_required
+def propose_meeting(request, match_id):
+    match = get_object_or_404(MatchRequest, id=match_id, is_accepted=True)
+
+    if match.sender != request.user and match.receiver != request.user:
+        return HttpResponseForbidden("You’re not part of this match.")
+
+    if request.method == 'POST':
+        location = request.POST.get('location')
+        datetime_str = request.POST.get('datetime')
+        message = request.POST.get('message', '')
+
+        dt = datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M')
+
+        MeetingProposal.objects.create(
+            match=match,
+            proposer=request.user,
+            location=location,
+            datetime=dt,
+            message=message
+        )
+        return redirect('profile')
+
+    return render(request, 'accounts/propose_meeting.html', {'match': match})
+
+
+@login_required
+def handle_meeting_response(request, proposal_id, action):
+    proposal = get_object_or_404(MeetingProposal, id=proposal_id)
+
+    if proposal.match.receiver != request.user and proposal.match.sender != request.user:
+        return HttpResponseForbidden("You can't respond to this meeting.")
+
+    if action == 'accept':
+        proposal.status = 'accepted'
+    elif action == 'reject':
+        proposal.status = 'rejected'
+    proposal.save()
+
+    return redirect('profile')
+
+
+@login_required
+def list_meetings(request):
+    proposals = MeetingProposal.objects.filter(
+        Q(match__sender=request.user) |
+        Q(match__receiver=request.user)
+    ).order_by('-created_at')
+
+    return render(request, 'accounts/meeting_list.html', {'proposals': proposals})

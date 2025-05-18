@@ -1,0 +1,24 @@
+<h2>Your Meeting Proposals</h2>
+
+<ul>
+    {% for proposal in proposals %}
+    <li>
+        Match: {{ proposal.match.sender.username }} ⇄ {{ proposal.match.receiver.username }}<br>
+        Proposer: {{ proposal.proposer.username }}<br>
+        Location: {{ proposal.location }}<br>
+        Time: {{ proposal.datetime }}<br>
+        Message: {{ proposal.message|default:"(no message)" }}<br>
+        Status: {{ proposal.status|title }}<br>
+
+        {% if proposal.status == 'pending' and proposal.proposer != user %}
+        <a href="{% url 'handle_meeting_response' proposal.id 'accept' %}">✅ Accept</a> |
+        <a href="{% url 'handle_meeting_response' proposal.id 'reject' %}">❌ Reject</a>
+        {% endif %}
+    </li>
+    <hr>
+    {% empty %}
+    <p>No meeting proposals found.</p>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'profile' %}">← Back to Profile</a>
