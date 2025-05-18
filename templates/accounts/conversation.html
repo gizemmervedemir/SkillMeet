@@ -1,0 +1,24 @@
+<h2>Chat with {{ other.username }}</h2>
+
+<div style="border:1px solid #ccc; padding:10px; max-width:600px;">
+    {% for msg in messages %}
+    <p>
+        <strong>
+            {% if msg.sender == user %}You{% else %}{{ other.username }}{% endif %}
+        </strong>
+        ({{ msg.timestamp|date:"Y-m-d H:i" }}):
+        <br>{{ msg.text|linebreaks }}
+    </p>
+    <hr>
+    {% empty %}
+    <p>No messages yet.</p>
+    {% endfor %}
+</div>
+
+<form method="post">
+    {% csrf_token %}
+    <textarea name="text" rows="3" cols="60" placeholder="Type your message..."></textarea><br>
+    <button type="submit">Send</button>
+</form>
+
+<p><a href="{% url 'profile' %}">← Back to Profile</a></p>

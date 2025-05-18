@@ -1,10 +1,71 @@
-<h2>Profile</h2>
-<p>Username: {{ user.username }}</p>
-<p>Email: {{ user.email }}</p>
-<p>Dojo Level: {{ user.dojo_level }}</p>
+<h2>Your Profile</h2>
+
+<p><strong>Username:</strong> {{ user.username }}</p>
+<p><strong>Email:</strong> {{ user.email }}</p>
+<p><strong>City:</strong> {{ user.city }}</p>
+<p><strong>Skills to Teach:</strong> {{ user.skills_can_teach }}</p>
+<p><strong>Skills to Learn:</strong> {{ user.skills_want_to_learn }}</p>
+<p><strong>Dojo Level:</strong> {{ user.dojo_level }}</p>
 
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Update Profile</button>
 </form>
+
+<hr>
+
+<h3>Incoming Match Requests</h3>
+{% if match_requests %}
+<ul>
+    {% for req in match_requests %}
+    <li>
+        From: {{ req.sender.username }}<br>
+        Message: {{ req.message|default:"(no message)" }}<br>
+        <a href="{% url 'handle_match_request' req.id 'accept' %}">✅ Accept</a> |
+        <a href="{% url 'handle_match_request' req.id 'reject' %}">❌ Reject</a>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No incoming match requests.</p>
+{% endif %}
+
+<hr>
+
+<h3>Sent Match Requests</h3>
+{% if sent_requests %}
+<ul>
+    {% for req in sent_requests %}
+    <li>
+        To: {{ req.receiver.username }} —
+        Status:
+        {% if req.is_accepted == True %}
+        ✅ Accepted
+        — <a href="{% url 'conversation' req.receiver.id %}">💬 Chat</a>
+        {% elif req.is_accepted == False %}
+        ❌ Rejected
+        {% else %}
+        ⏳ Pending
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>You haven't sent any match requests.</p>
+{% endif %}
+
+<hr>
+
+<h3>Your Matches</h3>
+{% if match_requests_received %}
+<ul>
+    {% for req in match_requests_received %}
+    <li>
+        {{ req.sender.username }} — <a href="{% url 'conversation' req.sender.id %}">💬 Chat</a>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>You don't have any accepted matches yet.</p>
+{% endif %}

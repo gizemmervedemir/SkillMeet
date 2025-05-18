@@ -3,8 +3,10 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
+from django.db.models import Q
+
 from .forms import CustomUserCreationForm, CustomUserUpdateForm
-from .models import CustomUser, MatchRequest
+from .models import CustomUser, MatchRequest, Message
 
 
 def register_view(request):
@@ -47,24 +49,22 @@ def profile_view(request):
 
     match_requests = MatchRequest.objects.filter(receiver=request.user, is_accepted=None)
     sent_requests = MatchRequest.objects.filter(sender=request.user)
+    received_matches = MatchRequest.objects.filter(receiver=request.user, is_accepted=True)
 
-    return render(
-        request,
-        'accounts/profile.html',
-        {
-            'form': form,
-            'user': request.user,
-            'match_requests': match_requests,
-            'sent_requests': sent_requests,
-        }
-    )
+    return render(request, 'accounts/profile.html', {
+        'form': form,
+        'user': request.user,
+        'match_requests': match_requests,
+        'sent_requests': sent_requests,
+        'match_requests_received': received_matches,
+    })
 
 
 @login_required
 def send_match_request(request, receiver_id):
     if not request.user.is_approved:
         return HttpResponseForbidden("Only approved users can send match requests.")
-    
+
     receiver = get_object_or_404(CustomUser, id=receiver_id)
 
     if request.method == 'POST':
@@ -83,6 +83,37 @@ def handle_match_request(request, request_id, action):
         match_request.is_accepted = True
     elif action == 'reject':
         match_request.is_accepted = False
-    match_request.save()
 
+    match_request.save()
     return redirect('profile')
+
+
+@login_required
+def conversation_view(request, other_id):
+    other = get_object_or_404(CustomUser, id=other_id)
+
+    # Only allow if users are matched
+    matched = MatchRequest.objects.filter(
+        Q(sender=request.user, receiver=other, is_accepted=True) |
+        Q(sender=other, receiver=request.user, is_accepted=True)
+    ).exists()
+
+    if not matched:
+        return HttpResponseForbidden("You must be matched to chat.")
+
+    # Fetch chat messages
+    messages = Message.objects.filter(
+        Q(sender=request.user, receiver=other) |
+        Q(sender=other, receiver=request.user)
+    ).order_by('timestamp')
+
+    if request.method == 'POST':
+        text = request.POST.get('text', '').strip()
+        if text:
+            Message.objects.create(sender=request.user, receiver=other, text=text)
+        return redirect('conversation', other_id=other.id)
+
+    return render(request, 'accounts/conversation.html', {
+        'other': other,
+        'messages': messages,
+    })
