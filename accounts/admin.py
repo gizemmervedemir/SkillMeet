@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, MatchRequest, Message
+from .models import CustomUser, MatchRequest, Message, MeetingProposal
 
 
 class CustomUserAdmin(UserAdmin):
@@ -33,6 +33,13 @@ class MessageAdmin(admin.ModelAdmin):
     list_filter = ('timestamp',)
 
 
+class MeetingProposalAdmin(admin.ModelAdmin):
+    list_display = ('match', 'location', 'datetime', 'status', 'proposer', 'created_at')
+    list_filter = ('status', 'datetime', 'created_at')
+    search_fields = ('match__sender__username', 'match__receiver__username', 'location')
+
+
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(MatchRequest, MatchRequestAdmin)
 admin.site.register(Message, MessageAdmin)
+admin.site.register(MeetingProposal, MeetingProposalAdmin)

@@ -51,3 +51,20 @@ class Message(models.Model):
 
     def __str__(self):
         return f"{self.sender.username} → {self.receiver.username} at {self.timestamp:%Y-%m-%d %H:%M}"
+
+
+class MeetingProposal(models.Model):
+    match = models.ForeignKey(MatchRequest, on_delete=models.CASCADE)
+    proposer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    location = models.CharField(max_length=255)
+    datetime = models.DateTimeField()
+    message = models.TextField(blank=True)
+    status = models.CharField(max_length=10, choices=[
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('rejected', 'Rejected'),
+    ], default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.match.sender} ⇄ {self.match.receiver} on {self.datetime} ({self.status})"
