@@ -1,0 +1,8 @@
+<h2>Send Match Request to {{ receiver.username }}</h2>
+
+<form method="post">
+    {% csrf_token %}
+    <label>Message:</label><br>
+    <textarea name="message" rows="4" cols="40"></textarea><br><br>
+    <button type="submit">Send Request</button>
+</form>
