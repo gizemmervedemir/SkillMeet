@@ -1,7 +1,12 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.conf import settings
+from django.db.models import Q
 
+
+# ---------------------------
+# CUSTOM USER MODEL
+# ---------------------------
 
 class CustomUser(AbstractUser):
     bio = models.TextField(blank=True)
@@ -17,8 +22,10 @@ class CustomUser(AbstractUser):
     def update_dojo_level(self):
         ratings = self.received_ratings.all()
         total = ratings.count()
+
         if total == 0:
             self.dojo_level = "White Belt"
+            self.save()
             return
 
         avg = sum(r.score for r in ratings) / total
@@ -37,6 +44,10 @@ class CustomUser(AbstractUser):
         self.save()
 
 
+# ---------------------------
+# MATCH REQUEST MODEL
+# ---------------------------
+
 class MatchRequest(models.Model):
     sender = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -53,9 +64,17 @@ class MatchRequest(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        status = "Accepted" if self.is_accepted else "Pending" if self.is_accepted is None else "Rejected"
+        status = (
+            "Accepted" if self.is_accepted else
+            "Pending" if self.is_accepted is None else
+            "Rejected"
+        )
         return f"{self.sender.username} → {self.receiver.username} ({status})"
 
+
+# ---------------------------
+# MESSAGE MODEL
+# ---------------------------
 
 class Message(models.Model):
     sender = models.ForeignKey(
@@ -75,6 +94,10 @@ class Message(models.Model):
         return f"{self.sender.username} → {self.receiver.username} at {self.timestamp:%Y-%m-%d %H:%M}"
 
 
+# ---------------------------
+# MEETING PROPOSAL MODEL
+# ---------------------------
+
 class MeetingProposal(models.Model):
     match = models.ForeignKey(MatchRequest, on_delete=models.CASCADE)
     proposer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -91,6 +114,10 @@ class MeetingProposal(models.Model):
     def __str__(self):
         return f"{self.match.sender} ⇄ {self.match.receiver} on {self.datetime} ({self.status})"
 
+
+# ---------------------------
+# RATING MODEL
+# ---------------------------
 
 class Rating(models.Model):
     rater = models.ForeignKey(
@@ -110,6 +137,10 @@ class Rating(models.Model):
     def __str__(self):
         return f"{self.rater.username} → {self.rated_user.username}: {self.score}"
 
+
+# ---------------------------
+# NOTIFICATION MODEL
+# ---------------------------
 
 class Notification(models.Model):
     user = models.ForeignKey(

@@ -8,6 +8,7 @@ from datetime import datetime
 
 from .forms import CustomUserCreationForm, CustomUserUpdateForm
 from .models import CustomUser, MatchRequest, Message, MeetingProposal, Rating, Notification
+from .utils import calculate_match_score
 
 
 # ---------------------------
@@ -231,3 +232,36 @@ def rate_user(request, user_id):
         return redirect('profile')
 
     return render(request, 'accounts/rate_user.html', {'target': target})
+
+
+# ---------------------------
+# SUGGESTIONS SYSTEM
+# ---------------------------
+
+@login_required
+def suggestions_view(request):
+    if not request.user.is_approved:
+        return HttpResponseForbidden("Only approved users can get suggestions.")
+
+    users = CustomUser.objects.filter(is_approved=True).exclude(id=request.user.id)
+    suggestions = []
+
+    for candidate in users:
+        already_requested = MatchRequest.objects.filter(
+            sender=request.user, receiver=candidate
+        ).exists() or MatchRequest.objects.filter(
+            sender=candidate, receiver=request.user
+        ).exists()
+
+        if already_requested:
+            continue
+
+        score = calculate_match_score(request.user, candidate)
+        if score > 0:
+            suggestions.append((candidate, score))
+
+    suggestions.sort(key=lambda x: x[1], reverse=True)
+
+    return render(request, 'accounts/suggestions.html', {
+        'suggestions': suggestions
+    })
