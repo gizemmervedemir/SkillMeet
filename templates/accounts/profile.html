@@ -33,10 +33,29 @@
             background-color: gold;
             color: black;
         }
+
+        .notification-banner {
+            background-color: #ffeeba;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #f0ad4e;
+        }
     </style>
 </head>
 
 <body>
+
+    {% if notifications %}
+    <div class="notification-banner">
+        <strong>🔔 You have {{ notifications.count }} new notification{{ notifications.count|pluralize }}:</strong>
+        <ul>
+            {% for n in notifications %}
+            <li>{{ n.message }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
 
     <h2>Your Profile</h2>
 
