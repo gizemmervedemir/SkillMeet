@@ -27,4 +27,10 @@ urlpatterns = [
 
     # Smart Suggestions
     path('suggestions/', views.suggestions_view, name='suggestions'),
+
+    # Category Pages
+    path('category/<str:category>/', views.category_view, name='category_view'),
+
+    # Partner Venues Page (YENİ)
+    path('partner-venues/', views.partner_venues_view, name='partner_venues'),
 ]

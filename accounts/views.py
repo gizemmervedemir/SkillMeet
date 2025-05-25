@@ -7,28 +7,22 @@ from django.db.models import Q
 from datetime import datetime
 
 from .forms import CustomUserCreationForm, CustomUserUpdateForm
-from .models import CustomUser, MatchRequest, Message, MeetingProposal, Rating, Notification
+from .models import CustomUser, MatchRequest, Message, MeetingProposal, Rating, Notification, Venue, PartnerCompany
 from .utils import calculate_match_score
 
-
 # ---------------------------
-# AUTHENTICATION VIEWS
+# AUTHENTICATION
 # ---------------------------
 
 def register_view(request):
     if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            # Başarılı kayıt sonrası login sayfasına yönlendir
             return redirect('login')
-        else:
-            # Form hataları template'e gönderilir
-            return render(request, 'accounts/register.html', {'form': form})
     else:
         form = CustomUserCreationForm()
     return render(request, 'accounts/register.html', {'form': form})
-
 
 def login_view(request):
     if request.method == 'POST':
@@ -36,19 +30,14 @@ def login_view(request):
         if form.is_valid():
             login(request, form.get_user())
             return redirect('profile')
-        else:
-            # Hatalı giriş formu tekrar gönderilir
-            return render(request, 'accounts/login.html', {'form': form})
     else:
         form = AuthenticationForm()
     return render(request, 'accounts/login.html', {'form': form})
-
 
 @login_required
 def logout_view(request):
     logout(request)
     return redirect('login')
-
 
 # ---------------------------
 # PROFILE
@@ -57,7 +46,7 @@ def logout_view(request):
 @login_required
 def profile_view(request):
     if request.method == 'POST':
-        form = CustomUserUpdateForm(request.POST, instance=request.user)
+        form = CustomUserUpdateForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
             form.save()
             return redirect('profile')
@@ -71,6 +60,8 @@ def profile_view(request):
     avg_rating = sum(r.score for r in ratings) / ratings.count() if ratings.exists() else None
     notifications = request.user.notifications.filter(is_read=False)
     notifications.update(is_read=True)
+    venues = Venue.objects.filter(is_active=True).order_by('?')[:3]
+    partners = PartnerCompany.objects.filter(is_active=True).order_by('?')[:3]
 
     return render(request, 'accounts/profile.html', {
         'form': form,
@@ -81,8 +72,20 @@ def profile_view(request):
         'ratings': ratings,
         'avg_rating': avg_rating,
         'notifications': notifications,
+        'venues': venues,
+        'partner_companies': partners,
     })
 
+# ---------------------------
+# PARTNER VENUES
+# ---------------------------
+
+@login_required
+def partner_venues_view(request):
+    partners = PartnerCompany.objects.filter(is_active=True).order_by('name')
+    return render(request, 'accounts/partner_venues.html', {
+        'partners': partners
+    })
 
 # ---------------------------
 # MATCH SYSTEM
@@ -91,7 +94,6 @@ def profile_view(request):
 @login_required
 def send_match_request(request, receiver_id):
     if not request.user.is_approved:
-        # Daha güzel bir hata sayfasına yönlendirme yap
         return render(request, 'accounts/not_approved.html', status=403)
 
     receiver = get_object_or_404(CustomUser, id=receiver_id)
@@ -103,7 +105,6 @@ def send_match_request(request, receiver_id):
         return redirect('profile')
 
     return render(request, 'accounts/send_match_request.html', {'receiver': receiver})
-
 
 @login_required
 def handle_match_request(request, request_id, action):
@@ -118,9 +119,8 @@ def handle_match_request(request, request_id, action):
     match_request.save()
     return redirect('profile')
 
-
 # ---------------------------
-# CHAT SYSTEM
+# CHAT
 # ---------------------------
 
 @login_required
@@ -152,9 +152,8 @@ def conversation_view(request, other_id):
         'messages': messages,
     })
 
-
 # ---------------------------
-# MEETING SYSTEM
+# MEETINGS
 # ---------------------------
 
 @login_required
@@ -180,8 +179,11 @@ def propose_meeting(request, match_id):
         )
         return redirect('profile')
 
-    return render(request, 'accounts/propose_meeting.html', {'match': match})
-
+    venues = Venue.objects.filter(is_active=True, type='place')
+    return render(request, 'accounts/propose_meeting.html', {
+        'match': match,
+        'venues': venues,
+    })
 
 @login_required
 def handle_meeting_response(request, proposal_id, action):
@@ -198,7 +200,6 @@ def handle_meeting_response(request, proposal_id, action):
     proposal.save()
     return redirect('profile')
 
-
 @login_required
 def list_meetings(request):
     proposals = MeetingProposal.objects.filter(
@@ -208,9 +209,8 @@ def list_meetings(request):
 
     return render(request, 'accounts/meeting_list.html', {'proposals': proposals})
 
-
 # ---------------------------
-# RATING SYSTEM
+# RATING
 # ---------------------------
 
 @login_required
@@ -241,15 +241,13 @@ def rate_user(request, user_id):
 
     return render(request, 'accounts/rate_user.html', {'target': target})
 
-
 # ---------------------------
-# SUGGESTIONS SYSTEM
+# SUGGESTIONS
 # ---------------------------
 
 @login_required
 def suggestions_view(request):
     if not request.user.is_approved:
-        # Daha güzel bir hata sayfasına yönlendirme yap
         return render(request, 'accounts/not_approved.html', status=403)
 
     users = CustomUser.objects.filter(is_approved=True).exclude(id=request.user.id)
@@ -273,4 +271,31 @@ def suggestions_view(request):
 
     return render(request, 'accounts/suggestions.html', {
         'suggestions': suggestions
+    })
+
+# ---------------------------
+# CATEGORY FILTERS
+# ---------------------------
+
+@login_required
+def category_view(request, category):
+    users = CustomUser.objects.filter(is_approved=True).exclude(id=request.user.id)
+    filtered_users = []
+
+    for user in users:
+        skills = (user.skills_can_teach or "") + " " + (user.skills_want_to_learn or "")
+        if category.lower() == "sports" and any(k in skills.lower() for k in ["sport", "basketball", "tennis", "fitness"]):
+            filtered_users.append(user)
+        elif category.lower() == "art" and any(k in skills.lower() for k in ["art", "painting", "drawing", "sculpture"]):
+            filtered_users.append(user)
+        elif category.lower() == "language" and any(k in skills.lower() for k in ["language", "english", "turkish", "french", "german"]):
+            filtered_users.append(user)
+        elif category.lower() == "music" and any(k in skills.lower() for k in ["music", "guitar", "piano", "violin", "drums"]):
+            filtered_users.append(user)
+        elif category.lower() == "others":
+            filtered_users.append(user)
+
+    return render(request, 'accounts/category.html', {
+        'category': category.title(),
+        'users': filtered_users,
     })

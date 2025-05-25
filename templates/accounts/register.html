@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
-{% load form_filters %}
 
 {% block title %}Register{% endblock %}
 
@@ -9,14 +8,13 @@
     <div class="col-md-8 col-lg-6">
         <div class="card shadow-sm border-success">
             <div class="card-header bg-success text-white">
-                <h4 class="mb-0"><i class="fas fa-user-plus me-2"></i>Register</h4>
+                <h4 class="mb-0"><i class="fas fa-user-plus me-2"></i> Register</h4>
             </div>
             <div class="card-body bg-light">
 
-                {# Form validation error messages #}
                 {% if form.errors %}
                 <div class="alert alert-danger">
-                    <ul class="mb-0">
+                    <ul class="mb-0 ps-3">
                         {% for field in form %}
                         {% for error in field.errors %}
                         <li><strong>{{ field.label }}:</strong> {{ error }}</li>
@@ -29,7 +27,7 @@
                 </div>
                 {% endif %}
 
-                <form method="post" novalidate>
+                <form method="post" enctype="multipart/form-data" novalidate>
                     {% csrf_token %}
 
                     <div class="form-group mb-3">
@@ -48,18 +46,29 @@
                     </div>
 
                     <div class="form-group mb-3">
+                        {{ form.profile_image.label_tag }}
+                        {{ form.profile_image|add_class:"form-control" }}
+                    </div>
+
+                    <div class="form-group mb-3">
                         {{ form.skills_can_teach.label_tag }}
-                        {{ form.skills_can_teach|add_class:"form-control" }}
+                        {{ form.skills_can_teach|add_class:"form-select" }}
+                        <small class="form-text text-muted">
+                            Hold Ctrl (Windows) or Cmd (Mac) to select multiple options.
+                        </small>
                     </div>
 
                     <div class="form-group mb-3">
                         {{ form.skills_want_to_learn.label_tag }}
-                        {{ form.skills_want_to_learn|add_class:"form-control" }}
+                        {{ form.skills_want_to_learn|add_class:"form-select" }}
+                        <small class="form-text text-muted">
+                            Hold Ctrl (Windows) or Cmd (Mac) to select multiple options.
+                        </small>
                     </div>
 
                     <div class="form-group mb-3">
                         {{ form.city.label_tag }}
-                        {{ form.city|add_class:"form-control" }}
+                        {{ form.city|add_class:"form-select" }}
                     </div>
 
                     <div class="form-group mb-3">
@@ -73,9 +82,10 @@
                     </div>
 
                     <button type="submit" class="btn btn-success w-100">
-                        <i class="fas fa-user-check me-1"></i>Sign Up
+                        <i class="fas fa-user-check me-1"></i> Sign Up
                     </button>
                 </form>
+
             </div>
         </div>
     </div>

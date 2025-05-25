@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
+{% load form_filters %}
 
 {% block title %}Your Profile{% endblock %}
 
@@ -51,27 +52,14 @@
         }
     }
 
-    /* Form düzeni için */
-    .profile-info p {
-        margin-bottom: 0.5rem;
-    }
-
-    /* Formdaki input ve textarea'lar tam genişlik */
-    .profile-info form textarea,
-    .profile-info form input[type="text"],
-    .profile-info form input[type="email"],
-    .profile-info form input[type="password"] {
-        width: 100% !important;
-        box-sizing: border-box;
-        min-height: 100px;
-        resize: vertical;
-    }
-
-    .profile-info form p {
+    .profile-pic {
+        max-width: 150px;
+        max-height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
         margin-bottom: 1rem;
     }
 
-    /* Başlıklar */
     .section-title {
         margin-top: 2.5rem;
         margin-bottom: 1rem;
@@ -80,36 +68,36 @@
         padding-bottom: 0.5rem;
     }
 
-    /* Liste elemanları */
-    .list-group-item {
-        border-radius: 0.5rem;
-        margin-bottom: 0.75rem;
-        padding: 1rem 1.25rem;
-        box-shadow: 0 2px 6px rgb(0 0 0 / 0.05);
-        display: block;
-    }
-
-    /* Flex olarak yan yana göstermek için */
-    @media (min-width: 576px) {
-        .list-group-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .list-group-item>div {
-            flex: 1 1 auto;
-            margin-bottom: 0 !important;
-        }
-    }
-
-    .list-group-item>div {
-        margin-bottom: 0.5rem;
-    }
-
     .btn-sm {
         min-width: 70px;
         margin-right: 0.5rem;
+    }
+
+    .partner-box {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        background: #f8f9fa;
+    }
+
+    .venue-box {
+        border: 1px dashed #999;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        background: #fffdf9;
+    }
+
+    .venue-box h5 {
+        margin-top: 0;
+    }
+
+    .view-all-btn {
+        margin-top: 1rem;
+        display: block;
+        width: 100%;
+        text-align: center;
     }
 </style>
 
@@ -129,6 +117,12 @@
         <h5 class="mb-0">👤 Your Profile</h5>
     </div>
     <div class="card-body bg-light profile-info">
+        {% if user.profile_image and user.profile_image.url %}
+        <img src="{{ user.profile_image.url }}" alt="Profile Image" class="profile-pic">
+        {% else %}
+        <img src="{{ MEDIA_URL }}profile_images/default_pikachu.png" alt="Default Profile" class="profile-pic">
+        {% endif %}
+
         <p><strong>Username:</strong> {{ user.username }}</p>
         <p><strong>Email:</strong> {{ user.email }}</p>
         <p><strong>City:</strong> {{ user.city|default:"(Not specified)" }}</p>
@@ -138,13 +132,22 @@
             <span class="dojo-badge {{ user.dojo_level|slugify }}">{{ user.dojo_level }}</span>
         </p>
 
-        <form method="post" class="mt-4">
+        <form method="post" enctype="multipart/form-data" class="mt-4">
             {% csrf_token %}
             {{ form.non_field_errors }}
             {% for field in form %}
             <p>
                 {{ field.label_tag }}
+                {% if field|field_type == "SelectMultiple" %}
+                {{ field|add_class:"form-select" }}
+                <small class="form-text text-muted">Hold Ctrl (Windows) or Cmd (Mac) to select multiple.</small>
+                {% elif field|field_type == "Select" %}
+                {{ field|add_class:"form-select" }}
+                {% elif field|field_type == "ClearableFileInput" %}
+                {{ field }}
+                {% else %}
                 {{ field|add_class:"form-control" }}
+                {% endif %}
                 {{ field.errors }}
             </p>
             {% endfor %}
@@ -153,87 +156,42 @@
     </div>
 </div>
 
-<h4 class="section-title">📥 Incoming Match Requests</h4>
-{% if match_requests %}
-<div class="list-group">
-    {% for req in match_requests %}
-    <div class="list-group-item">
-        <div>
-            <strong>From:</strong> {{ req.sender.username }}<br>
-            <strong>Message:</strong> {{ req.message|default:"(no message)" }}
-        </div>
-        <div class="mt-3 mt-sm-0">
-            <a href="{% url 'handle_match_request' req.id 'accept' %}" class="btn btn-success btn-sm me-2">✅ Accept</a>
-            <a href="{% url 'handle_match_request' req.id 'reject' %}" class="btn btn-danger btn-sm">❌ Reject</a>
+{% if partner_companies %}
+<h4 class="section-title">🤝 Partner Venues</h4>
+<div class="row">
+    {% for partner in partner_companies %}
+    <div class="col-md-6">
+        <div class="partner-box">
+            <h5>{{ partner.name }}</h5>
+            {% if partner.website %}
+            <p><a href="{{ partner.website }}" target="_blank">{{ partner.website }}</a></p>
+            {% endif %}
+            <p><strong>Email:</strong> {{ partner.contact_email }}</p>
+            <p>{{ partner.discount_details|default:"Special offers for SkillMeet members!" }}</p>
         </div>
     </div>
     {% endfor %}
 </div>
-{% else %}
-<p class="text-muted">No incoming match requests.</p>
+<a href="{% url 'partner_venues' %}" class="btn btn-outline-secondary view-all-btn">View All Partner Venues</a>
 {% endif %}
 
-<h4 class="section-title">📤 Sent Match Requests</h4>
-{% if sent_requests %}
-<div class="list-group">
-    {% for req in sent_requests %}
-    <div class="list-group-item">
-        <div>
-            <strong>To:</strong> {{ req.receiver.username }}<br>
-            <strong>Status:</strong>
-            {% if req.is_accepted == True %}
-            ✅ Accepted —
-            <a href="{% url 'conversation' req.receiver.id %}" class="btn btn-outline-primary btn-sm me-2">💬 Chat</a>
-            <a href="{% url 'rate_user' req.receiver.id %}" class="btn btn-outline-warning btn-sm">⭐ Rate</a>
-            {% elif req.is_accepted == False %}
-            ❌ Rejected
-            {% else %}
-            ⏳ Pending
+{% if venues %}
+<h4 class="section-title">📍 Suggested Venues</h4>
+<div class="row">
+    {% for venue in venues %}
+    <div class="col-md-6">
+        <div class="venue-box">
+            <h5>{{ venue.name }}</h5>
+            <p><strong>City:</strong> {{ venue.city }}</p>
+            <p><strong>Address:</strong> {{ venue.address }}</p>
+            {% if venue.contact_email %}
+            <p><strong>Contact:</strong> {{ venue.contact_email }}</p>
             {% endif %}
         </div>
     </div>
     {% endfor %}
 </div>
-{% else %}
-<p class="text-muted">You haven't sent any match requests.</p>
+<a href="{% url 'all_venues' %}" class="btn btn-outline-secondary view-all-btn">View All Venues</a>
 {% endif %}
 
-<h4 class="section-title">🤝 Your Matches</h4>
-{% if match_requests_received %}
-<div class="list-group">
-    {% for req in match_requests_received %}
-    <div class="list-group-item">
-        <div>
-            {{ req.sender.username }} —
-        </div>
-        <div>
-            <a href="{% url 'conversation' req.sender.id %}" class="btn btn-outline-primary btn-sm me-2">💬 Chat</a>
-            <a href="{% url 'rate_user' req.sender.id %}" class="btn btn-outline-warning btn-sm">⭐ Rate</a>
-        </div>
-    </div>
-    {% endfor %}
-</div>
-{% else %}
-<p class="text-muted">You don't have any accepted matches yet.</p>
-{% endif %}
-
-<h4 class="section-title">⭐ Ratings</h4>
-{% if avg_rating %}
-<p><strong>Average Rating:</strong> {{ avg_rating|floatformat:1 }} / 5</p>
-{% else %}
-<p class="text-muted">No ratings yet.</p>
-{% endif %}
-
-{% if ratings %}
-<ul class="list-group">
-    {% for r in ratings %}
-    <li class="list-group-item">
-        <strong>From:</strong> {{ r.rater.username }}<br>
-        <strong>Score:</strong> {{ r.score }}<br>
-        <strong>Comment:</strong> {{ r.comment|default:"(No comment)" }}<br>
-        <small class="text-muted">Date: {{ r.created_at|date:"Y-m-d H:i" }}</small>
-    </li>
-    {% endfor %}
-</ul>
-{% endif %}
 {% endblock %}

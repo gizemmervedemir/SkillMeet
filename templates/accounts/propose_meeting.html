@@ -15,7 +15,14 @@
 
                     <div class="form-group mb-3">
                         <label for="location" class="form-label">Location:</label>
-                        <input type="text" name="location" class="form-control" required>
+                        <select name="location" class="form-select" required>
+                            <option value="">-- Select a location --</option>
+                            {% for venue in venues %}
+                            <option value="{{ venue.name }} - {{ venue.city }}">{{ venue.name }} - {{ venue.city }}
+                            </option>
+                            {% endfor %}
+                            <option value="Online">💻 Online</option>
+                        </select>
                     </div>
 
                     <div class="form-group mb-3">

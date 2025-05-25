@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Partner Venues{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4 text-center">🤝 Our Partner Venues</h2>
+
+    {% if partners %}
+    <div class="row">
+        {% for partner in partners %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ partner.name }}</h5>
+
+                    {% if partner.website %}
+                    <p><a href="{{ partner.website }}" target="_blank" class="text-primary">🌐 {{ partner.website }}</a>
+                    </p>
+                    {% endif %}
+
+                    <p><strong>📧 Email:</strong> {{ partner.contact_email }}</p>
+                    <p><strong>🎁 Discount:</strong> {{ partner.discount_details|default:"Exclusive perks for SkillMeet
+                        users!" }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center">There are no partner venues listed at the moment. Check back soon!</div>
+    {% endif %}
+</div>
+{% endblock %}
