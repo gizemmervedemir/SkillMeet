@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}🔔 Your Notifications{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">🔔 Notifications</h2>
+
+{% if notifications %}
+<ul class="list-group">
+    {% for note in notifications %}
+    <li class="list-group-item d-flex justify-content-between align-items-start">
+        <div>
+            <div class="fw-bold">{{ note.created_at|date:"M d, H:i" }}</div>
+
+            {# Eğer related_user varsa, mesaj içindeki kullanıcı adını link yapıyoruz #}
+            {% if note.related_user %}
+            <a href="{% url 'view_user_profile' note.related_user.id %}" style="text-decoration:underline; color:blue;">
+                {{ note.related_user.username }}
+            </a>
+            {{ note.message|cut:note.related_user.username }}
+            {% else %}
+            {{ note.message }}
+            {% endif %}
+        </div>
+        {% if not note.is_read %}
+        <span class="badge bg-warning text-dark">New</span>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<div class="alert alert-info">You have no notifications.</div>
+{% endif %}
+
+<a href="{% url 'profile' %}" class="btn btn-secondary mt-4">← Back to Profile</a>
+{% endblock %}

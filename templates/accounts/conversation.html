@@ -1,47 +1,67 @@
 {% extends 'base.html' %}
 
-{% block title %}Chat with {{ other.username }}{% endblock %}
+{% block title %}💬 Chat with {{ other.username }}{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center mt-4">
-    <div class="col-md-10 col-lg-8">
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-info text-white">
-                <h5 class="mb-0">💬 Chat with {{ other.username }}</h5>
-            </div>
-            <div class="card-body bg-light" style="max-height: 400px; overflow-y: auto;">
-                {% if messages %}
-                {% for msg in messages %}
-                <div class="mb-3">
-                    <strong class="{% if msg.sender == user %}text-primary{% else %}text-secondary{% endif %}">
-                        {% if msg.sender == user %}You{% else %}{{ other.username }}{% endif %}
-                    </strong>
-                    <small class="text-muted">({{ msg.timestamp|date:"Y-m-d H:i" }})</small>
-                    <p class="mt-1 mb-0">{{ msg.text|linebreaks }}</p>
-                    <hr>
-                </div>
-                {% endfor %}
-                {% else %}
-                <p class="text-muted">No messages yet.</p>
-                {% endif %}
-            </div>
-        </div>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
 
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <form method="post" novalidate>
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="text" class="form-label">Your Message:</label>
-                        <textarea name="text" class="form-control" rows="3" placeholder="Type your message..."
-                            required></textarea>
+            <!-- Chat Header -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">💬 Chat with <strong>{{ other.username }}</strong></h5>
+                    <a href="{% url 'profile' %}" class="btn btn-sm btn-light">← Back</a>
+                </div>
+
+                <!-- Chat Messages -->
+                <div class="card-body bg-light" style="max-height: 400px; overflow-y: auto;">
+                    {% if messages %}
+                    {% for msg in messages %}
+                    <div class="mb-3 {% if msg.sender == request.user %}text-end{% endif %}">
+                        <div class="d-inline-block p-2 rounded 
+                                    {% if msg.sender == request.user %}
+                                        bg-success text-white
+                                    {% else %}
+                                        bg-white border
+                                    {% endif %}">
+                            <div class="fw-bold mb-1">
+                                {% if msg.sender == request.user %}
+                                You
+                                {% else %}
+                                {{ other.username }}
+                                {% endif %}
+                                <small class="text-muted">· {{ msg.timestamp|date:"M d, H:i" }}</small>
+                            </div>
+                            <div style="white-space: pre-wrap;">{{ msg.text }}</div>
+                        </div>
                     </div>
-                    <div class="d-flex justify-content-between">
-                        <a href="{% url 'profile' %}" class="btn btn-secondary">← Back to Profile</a>
-                        <button type="submit" class="btn btn-success">Send</button>
-                    </div>
-                </form>
+                    {% endfor %}
+                    {% else %}
+                    <p class="text-muted text-center">No messages yet. Start the conversation below 👇</p>
+                    {% endif %}
+                </div>
             </div>
+
+            <!-- Send New Message -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="text" class="form-label fw-semibold">Your Message:</label>
+                            <textarea name="text" class="form-control" rows="3" placeholder="Type something nice..."
+                                required></textarea>
+                        </div>
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary">
+                                ➤ Send
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>

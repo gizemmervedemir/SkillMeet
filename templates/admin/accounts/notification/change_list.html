@@ -1,0 +1,10 @@
+{% extends "admin/change_list.html" %}
+
+{% block object-tools %}
+{{ block.super }}
+{% if broadcast_button %}
+<div class="object-tools">
+    {{ broadcast_button|safe }}
+</div>
+{% endif %}
+{% endblock %}

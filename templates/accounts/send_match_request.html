@@ -7,19 +7,38 @@
     <div class="col-md-8 col-lg-6">
         <div class="card shadow-sm border-primary">
             <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Send Match Request to {{ receiver.username }}</h5>
+                <h5 class="mb-0">
+                    🤝 Send Match Request to <strong>{{ receiver.username }}</strong>
+                </h5>
             </div>
             <div class="card-body bg-light">
+                <div class="mb-3 text-center">
+                    {% if receiver.profile_image %}
+                    <img src="{{ receiver.profile_image.url }}" alt="{{ receiver.username }}"
+                        class="rounded-circle shadow-sm" style="width: 100px; height: 100px; object-fit: cover;">
+                    {% else %}
+                    <img src="{{ MEDIA_URL }}profile_images/default_avatar.png" alt="Default Avatar"
+                        class="rounded-circle shadow-sm" style="width: 100px; height: 100px; object-fit: cover;">
+                    {% endif %}
+                    <p class="mt-2 mb-0"><strong>City:</strong> {{ receiver.city }}</p>
+                    <p class="mb-0"><strong>Can Teach:</strong> {{ receiver.skills_can_teach|default:"(Not provided)" }}
+                    </p>
+                    <p class="mb-3"><strong>Wants to Learn:</strong> {{ receiver.skills_want_to_learn|default:"(Not
+                        provided)" }}</p>
+                </div>
+
                 <form method="post" novalidate>
                     {% csrf_token %}
                     <div class="form-group mb-4">
                         <label for="message" class="form-label">Message (optional):</label>
-                        <textarea name="message" class="form-control" rows="4"
-                            placeholder="Hi, I’d like to learn from you..."></textarea>
+                        <textarea name="message" id="message" class="form-control" rows="4"
+                            placeholder="Hi {{ receiver.username }}, I’d like to learn from you..."></textarea>
                     </div>
-                    <div class="d-flex justify-content-between">
-                        <a href="{% url 'profile' %}" class="btn btn-secondary">← Back to Profile</a>
-                        <button type="submit" class="btn btn-success">Send Request</button>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{% url 'suggestions' %}" class="btn btn-outline-secondary">← Back to Suggestions</a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-paper-plane me-1"></i>Send Request
+                        </button>
                     </div>
                 </form>
             </div>

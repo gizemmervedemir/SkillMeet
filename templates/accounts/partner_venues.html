@@ -6,29 +6,69 @@
 <div class="container my-5">
     <h2 class="mb-4 text-center">🤝 Our Partner Venues</h2>
 
+    {% if messages %}
+    <div class="mb-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     {% if partners %}
     <div class="row">
         {% for partner in partners %}
-        <div class="col-md-6 mb-4">
-            <div class="card h-100 shadow-sm">
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+
+                {% if partner.logo %}
+                <img src="{{ partner.logo.url }}" class="card-img-top img-fluid p-3" alt="{{ partner.name }}"
+                    style="max-height: 160px; object-fit: contain;">
+                {% endif %}
+
                 <div class="card-body">
-                    <h5 class="card-title">{{ partner.name }}</h5>
+                    <h5 class="card-title fw-bold">{{ partner.name }}</h5>
 
                     {% if partner.website %}
-                    <p><a href="{{ partner.website }}" target="_blank" class="text-primary">🌐 {{ partner.website }}</a>
+                    <p class="mb-1">
+                        <a href="{{ partner.website }}" target="_blank" class="text-decoration-none text-primary">
+                            🌐 {{ partner.website }}
+                        </a>
                     </p>
                     {% endif %}
 
-                    <p><strong>📧 Email:</strong> {{ partner.contact_email }}</p>
-                    <p><strong>🎁 Discount:</strong> {{ partner.discount_details|default:"Exclusive perks for SkillMeet
-                        users!" }}</p>
+                    {% if partner.contact_email %}
+                    <p class="mb-1"><strong>📧 Email:</strong> {{ partner.contact_email }}</p>
+                    {% endif %}
+
+                    <p><strong>🎁 Discount:</strong>
+                        {{ partner.discount_details|default:"Exclusive perks for SkillMeet users!" }}
+                    </p>
+
+                    {% if user.is_authenticated %}
+                    {% if user.can_apply_for_discount %}
+                    <form action="{% url 'apply_discount' partner.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-gradient btn-sm mt-2">
+                            🎯 Apply for Discount
+                        </button>
+                    </form>
+                    {% else %}
+                    <p class="text-muted mt-2 small">🔒 Only available for users with Blue Belt, Red Belt or Master
+                        level.</p>
+                    {% endif %}
+                    {% endif %}
                 </div>
             </div>
         </div>
         {% endfor %}
     </div>
     {% else %}
-    <div class="alert alert-info text-center">There are no partner venues listed at the moment. Check back soon!</div>
+    <div class="alert alert-info text-center">
+        🚧 There are no partner venues listed at the moment. Please check back soon!
+    </div>
     {% endif %}
 </div>
 {% endblock %}

@@ -13,6 +13,7 @@ class CustomUser(AbstractUser):
         null=True
     )
 
+    # Skills stored as comma-separated strings
     skills_can_teach = models.TextField(blank=True)
     skills_want_to_learn = models.TextField(blank=True)
 
@@ -29,7 +30,8 @@ class CustomUser(AbstractUser):
     ]
     city = models.CharField(max_length=100, choices=CITY_CHOICES, default='Kadıköy')
 
-    is_approved = models.BooleanField(default=False)
+    is_approved = models.BooleanField(default=True)
+
     dojo_level = models.CharField(max_length=20, default="White Belt")
 
     CATEGORY_CHOICES = [
@@ -64,12 +66,15 @@ class CustomUser(AbstractUser):
                 self.dojo_level = "White Belt"
         self.save()
 
+    def can_apply_for_discount(self):
+        return self.dojo_level in ["Blue Belt", "Red Belt", "Master"]
+
 
 class MatchRequest(models.Model):
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_requests')
     receiver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='received_requests')
     message = models.TextField(blank=True)
-    is_accepted = models.BooleanField(null=True)
+    is_accepted = models.BooleanField(null=True)  # None = pending, True = accepted, False = rejected
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -107,7 +112,7 @@ class MeetingProposal(models.Model):
 class Rating(models.Model):
     rater = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='given_ratings')
     rated_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='received_ratings')
-    score = models.IntegerField()
+    score = models.IntegerField()  # Rating score 1 to 5
     comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -115,9 +120,27 @@ class Rating(models.Model):
         return f"{self.rater.username} → {self.rated_user.username}: {self.score}"
 
 
+class MatchFeedback(models.Model):
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='feedback_sent')
+    receiver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='feedback_received')
+    rating = models.IntegerField()  # 1 to 5
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.sender.username} → {self.receiver.username} : {self.rating}"
+
+
 class Notification(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notifications')
     message = models.CharField(max_length=255)
+    related_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='related_notifications'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
 
@@ -136,6 +159,7 @@ class PartnerCompany(models.Model):
     discount_details = models.TextField(blank=True)
     is_active = models.BooleanField(default=True)
     type = models.CharField(max_length=20, choices=TYPE_CHOICES, default="company")
+    logo = models.ImageField(upload_to='partner_logos/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

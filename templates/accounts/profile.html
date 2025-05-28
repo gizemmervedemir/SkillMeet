@@ -68,36 +68,37 @@
         padding-bottom: 0.5rem;
     }
 
-    .btn-sm {
-        min-width: 70px;
-        margin-right: 0.5rem;
-    }
-
-    .partner-box {
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        padding: 1rem;
+    .skill-selector {
+        max-height: 150px;
+        overflow-y: auto;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        padding: 6px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        background-color: #f8f9fa;
         margin-bottom: 1rem;
-        background: #f8f9fa;
     }
 
-    .venue-box {
-        border: 1px dashed #999;
-        border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        background: #fffdf9;
+    .skill-option {
+        padding: 6px 14px;
+        border-radius: 20px;
+        border: 1px solid #adb5bd;
+        background-color: white;
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.15s ease-in-out;
     }
 
-    .venue-box h5 {
-        margin-top: 0;
+    .skill-option:hover {
+        background-color: #e9ecef;
     }
 
-    .view-all-btn {
-        margin-top: 1rem;
-        display: block;
-        width: 100%;
-        text-align: center;
+    .skill-option.selected {
+        background-color: #198754;
+        color: white;
+        border-color: #198754;
     }
 </style>
 
@@ -126,22 +127,58 @@
         <p><strong>Username:</strong> {{ user.username }}</p>
         <p><strong>Email:</strong> {{ user.email }}</p>
         <p><strong>City:</strong> {{ user.city|default:"(Not specified)" }}</p>
-        <p><strong>Skills to Teach:</strong> {{ user.skills_can_teach|default:"(None)" }}</p>
-        <p><strong>Skills to Learn:</strong> {{ user.skills_want_to_learn|default:"(None)" }}</p>
         <p><strong>Dojo Level:</strong>
             <span class="dojo-badge {{ user.dojo_level|slugify }}">{{ user.dojo_level }}</span>
         </p>
 
-        <form method="post" enctype="multipart/form-data" class="mt-4">
+        {# Gelen match requestleri #}
+        {% if match_requests %}
+        <h4 class="section-title">📥 Incoming Match Requests</h4>
+        <ul class="list-group mb-4">
+            {% for req in match_requests %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <strong>
+                    <a href="{% url 'view_user_profile' req.sender.id %}">{{ req.sender.username }}</a>
+                </strong>
+                wants to connect.
+                <span>
+                    <a href="{% url 'handle_match_request' req.id 'accept' %}" class="btn btn-sm btn-success">Accept</a>
+                    <a href="{% url 'handle_match_request' req.id 'reject' %}" class="btn btn-sm btn-danger">Reject</a>
+                </span>
+            </li>
+            {% empty %}
+            <li class="list-group-item text-muted">No incoming requests.</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        {# Kabul edilmiş eşleşmeler #}
+        {% if match_requests_received %}
+        <h4 class="section-title">✅ Accepted Matches</h4>
+        <ul class="list-group mb-4">
+            {% for match in match_requests_received %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {% if match.sender == user %}
+                <a href="{% url 'view_user_profile' match.receiver.id %}">{{ match.receiver.username }}</a>
+                {% else %}
+                <a href="{% url 'view_user_profile' match.sender.id %}">{{ match.sender.username }}</a>
+                {% endif %}
+                <a href="{% url 'propose_meeting' match.id %}" class="btn btn-sm btn-primary ms-2">Propose Meeting</a>
+            </li>
+            {% empty %}
+            <li class="list-group-item text-muted">No accepted matches yet.</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" id="profile-form">
             {% csrf_token %}
             {{ form.non_field_errors }}
             {% for field in form %}
+            {% if field.name != 'skills_can_teach' and field.name != 'skills_want_to_learn' %}
             <p>
                 {{ field.label_tag }}
-                {% if field|field_type == "SelectMultiple" %}
-                {{ field|add_class:"form-select" }}
-                <small class="form-text text-muted">Hold Ctrl (Windows) or Cmd (Mac) to select multiple.</small>
-                {% elif field|field_type == "Select" %}
+                {% if field|field_type == "Select" %}
                 {{ field|add_class:"form-select" }}
                 {% elif field|field_type == "ClearableFileInput" %}
                 {{ field }}
@@ -150,48 +187,70 @@
                 {% endif %}
                 {{ field.errors }}
             </p>
+            {% endif %}
             {% endfor %}
+
+            <!-- Skills You Can Teach -->
+            <label class="form-label mt-3"><strong>Skills You Can Teach</strong></label>
+            <div class="skill-selector" id="teach-selector">
+                {% for skill in skill_options %}
+                <div class="skill-option{% if skill.value in selected_teach %} selected{% endif %}"
+                    data-skill="{{ skill.value }}">{{ skill.label }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Skills You Want to Learn -->
+            <label class="form-label mt-3"><strong>Skills You Want to Learn</strong></label>
+            <div class="skill-selector" id="learn-selector">
+                {% for skill in skill_options %}
+                <div class="skill-option{% if skill.value in selected_learn %} selected{% endif %}"
+                    data-skill="{{ skill.value }}">{{ skill.label }}</div>
+                {% endfor %}
+            </div>
+
             <button type="submit" class="btn btn-primary w-100 mt-3">Update Profile</button>
         </form>
     </div>
 </div>
 
-{% if partner_companies %}
-<h4 class="section-title">🤝 Partner Venues</h4>
-<div class="row">
-    {% for partner in partner_companies %}
-    <div class="col-md-6">
-        <div class="partner-box">
-            <h5>{{ partner.name }}</h5>
-            {% if partner.website %}
-            <p><a href="{{ partner.website }}" target="_blank">{{ partner.website }}</a></p>
-            {% endif %}
-            <p><strong>Email:</strong> {{ partner.contact_email }}</p>
-            <p>{{ partner.discount_details|default:"Special offers for SkillMeet members!" }}</p>
-        </div>
-    </div>
-    {% endfor %}
-</div>
-<a href="{% url 'partner_venues' %}" class="btn btn-outline-secondary view-all-btn">View All Partner Venues</a>
-{% endif %}
+<script>
+    function setupSkillSelector(containerId, formId, fieldName) {
+        const container = document.getElementById(containerId);
+        const form = document.getElementById(formId);
 
-{% if venues %}
-<h4 class="section-title">📍 Suggested Venues</h4>
-<div class="row">
-    {% for venue in venues %}
-    <div class="col-md-6">
-        <div class="venue-box">
-            <h5>{{ venue.name }}</h5>
-            <p><strong>City:</strong> {{ venue.city }}</p>
-            <p><strong>Address:</strong> {{ venue.address }}</p>
-            {% if venue.contact_email %}
-            <p><strong>Contact:</strong> {{ venue.contact_email }}</p>
-            {% endif %}
-        </div>
-    </div>
-    {% endfor %}
-</div>
-<a href="{% url 'all_venues' %}" class="btn btn-outline-secondary view-all-btn">View All Venues</a>
-{% endif %}
+        container.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('skill-option')) return;
+
+            e.target.classList.toggle('selected');
+
+            // Remove existing hidden inputs for this field
+            const oldInputs = form.querySelectorAll(`input[name="${fieldName}"]`);
+            oldInputs.forEach(input => input.remove());
+
+            // Add hidden inputs for all selected skills
+            const selectedSkills = [...container.querySelectorAll('.selected')].map(el => el.dataset.skill);
+            selectedSkills.forEach(skill => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = fieldName;
+                input.value = skill;
+                form.appendChild(input);
+            });
+        });
+
+        // On page load, add hidden inputs for pre-selected skills
+        const preSelected = [...container.querySelectorAll('.selected')].map(el => el.dataset.skill);
+        preSelected.forEach(skill => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = fieldName;
+            input.value = skill;
+            form.appendChild(input);
+        });
+    }
+
+    setupSkillSelector('teach-selector', 'profile-form', 'skills_can_teach');
+    setupSkillSelector('learn-selector', 'profile-form', 'skills_want_to_learn');
+</script>
 
 {% endblock %}

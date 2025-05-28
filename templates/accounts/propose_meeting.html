@@ -1,48 +1,47 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
 
-{% block title %}Propose a Meeting{% endblock %}
+{% block title %}Propose Meeting{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-md-8 col-lg-6">
-        <div class="card shadow-sm border-primary">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">📅 Propose a Meeting</h5>
+<div class="card shadow-sm mt-4">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">Propose Meeting with
+            {% if match.sender == user %}
+            {{ match.receiver.username }}
+            {% else %}
+            {{ match.sender.username }}
+            {% endif %}
+        </h4>
+    </div>
+    <div class="card-body">
+        <form method="post" id="propose-meeting-form">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="location" class="form-label">Meeting Type</label>
+                <select id="location" name="location" class="form-select" required>
+                    <option value="" selected disabled>Select meeting type</option>
+                    <option value="0">Google Meet (Online)</option>
+                    <option value="1">Face-to-Face Meeting</option>
+                </select>
             </div>
-            <div class="card-body bg-light">
-                <form method="post" novalidate>
-                    {% csrf_token %}
 
-                    <div class="form-group mb-3">
-                        <label for="location" class="form-label">Location:</label>
-                        <select name="location" class="form-select" required>
-                            <option value="">-- Select a location --</option>
-                            {% for venue in venues %}
-                            <option value="{{ venue.name }} - {{ venue.city }}">{{ venue.name }} - {{ venue.city }}
-                            </option>
-                            {% endfor %}
-                            <option value="Online">💻 Online</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label for="datetime" class="form-label">Date and Time:</label>
-                        <input type="datetime-local" name="datetime" class="form-control" required>
-                    </div>
-
-                    <div class="form-group mb-4">
-                        <label for="message" class="form-label">Message (optional):</label>
-                        <textarea name="message" class="form-control" rows="4"
-                            placeholder="Say something..."></textarea>
-                    </div>
-
-                    <div class="d-flex justify-content-between">
-                        <a href="{% url 'profile' %}" class="btn btn-secondary">← Back to Profile</a>
-                        <button type="submit" class="btn btn-success">Send Proposal</button>
-                    </div>
-                </form>
+            <div class="mb-3">
+                <label for="datetime" class="form-label">Date and Time</label>
+                <input type="datetime-local" id="datetime" name="datetime" class="form-control" required
+                    min="{{ now|date:'Y-m-d\\TH:i' }}">
             </div>
-        </div>
+
+            <div class="mb-3">
+                <label for="message" class="form-label">Message (optional)</label>
+                <textarea id="message" name="message" rows="3" class="form-control"
+                    placeholder="Add any details or notes..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100">Send Proposal</button>
+            <a href="{% url 'profile' %}" class="btn btn-secondary w-100 mt-2">Cancel</a>
+        </form>
     </div>
 </div>
 {% endblock %}

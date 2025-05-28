@@ -9,6 +9,7 @@ urlpatterns = [
 
     # Profile
     path('profile/', views.profile_view, name='profile'),
+    path('user/<int:user_id>/', views.view_user_profile, name='view_user_profile'),  # Başkalarının profili
 
     # Match System
     path('match/<int:receiver_id>/', views.send_match_request, name='send_match_request'),
@@ -25,12 +26,18 @@ urlpatterns = [
     # Ratings
     path('rate/<int:user_id>/', views.rate_user, name='rate_user'),
 
-    # Smart Suggestions
+    # Suggestions (ML Based)
     path('suggestions/', views.suggestions_view, name='suggestions'),
 
-    # Category Pages
+    # Category Filters
     path('category/<str:category>/', views.category_view, name='category_view'),
 
-    # Partner Venues Page (YENİ)
+    # Partner Venues
     path('partner-venues/', views.partner_venues_view, name='partner_venues'),
+
+    # Discount Application
+    path('apply-discount/<int:partner_id>/', views.apply_discount, name='apply_discount'),
+
+    # Notifications
+    path('notifications/', views.notification_list, name='notification_list'),
 ]

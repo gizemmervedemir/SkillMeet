@@ -6,12 +6,22 @@
 <div class="d-flex justify-content-center align-items-center" style="height: 60vh;">
     <div class="card shadow-sm border-warning w-75 text-center">
         <div class="card-header bg-warning text-dark">
-            <h4 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Access Denied</h4>
+            <h4 class="mb-0">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Access Restricted
+            </h4>
         </div>
         <div class="card-body bg-light">
-            <p class="lead">You need to be approved by an administrator to access this section.</p>
-            <p>If you believe this is an error, please contact support or wait for approval.</p>
-            <a href="{% url 'profile' %}" class="btn btn-primary mt-3">Go to Your Profile</a>
+            <p class="lead mb-3">
+                This section is currently restricted. You may not need approval anymore,
+                but access is still limited.
+            </p>
+            <p class="text-muted">
+                If you think something's wrong, contact support or return to your profile.
+            </p>
+            <a href="{% url 'profile' %}" class="btn btn-primary mt-3">
+                ← Back to Profile
+            </a>
         </div>
     </div>
 </div>

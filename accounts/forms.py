@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser
 
-# Sabit seçenekler
+# Sabit skill seçenekleri, değerler küçük harfli key, etiketler okunabilir hali
 SKILL_CHOICES = [
     ('guitar', 'Guitar'),
     ('piano', 'Piano'),
@@ -12,6 +12,16 @@ SKILL_CHOICES = [
     ('basketball', 'Basketball'),
     ('drawing', 'Drawing'),
     ('sculpting', 'Sculpting'),
+    ('painting', 'Painting'),
+    ('tennis', 'Tennis'),
+    ('fitness', 'Fitness'),
+    ('turkish', 'Turkish'),
+    ('german', 'German'),
+    ('violin', 'Violin'),
+    ('drums', 'Drums'),
+    ('singing', 'Singing'),
+    ('photography', 'Photography'),
+    ('coding', 'Coding'),
 ]
 
 CITY_CHOICES = [
@@ -27,7 +37,7 @@ CITY_CHOICES = [
 ]
 
 # ---------------------------
-# USER REGISTRATION FORM
+# KULLANICI KAYIT FORMU
 # ---------------------------
 
 class CustomUserCreationForm(UserCreationForm):
@@ -76,14 +86,16 @@ class CustomUserCreationForm(UserCreationForm):
         return email
 
     def clean_skills_can_teach(self):
-        return ','.join(self.cleaned_data.get('skills_can_teach', []))
+        skills = self.cleaned_data.get('skills_can_teach', [])
+        return ','.join(skills)
 
     def clean_skills_want_to_learn(self):
-        return ','.join(self.cleaned_data.get('skills_want_to_learn', []))
+        skills = self.cleaned_data.get('skills_want_to_learn', [])
+        return ','.join(skills)
 
 
 # ---------------------------
-# USER PROFILE UPDATE FORM
+# KULLANICI PROFİL GÜNCELLEME FORMU
 # ---------------------------
 
 class CustomUserUpdateForm(forms.ModelForm):
@@ -122,7 +134,6 @@ class CustomUserUpdateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         if self.instance and self.instance.pk:
             if self.instance.skills_can_teach:
                 self.initial['skills_can_teach'] = self.instance.skills_can_teach.split(',')
@@ -130,7 +141,9 @@ class CustomUserUpdateForm(forms.ModelForm):
                 self.initial['skills_want_to_learn'] = self.instance.skills_want_to_learn.split(',')
 
     def clean_skills_can_teach(self):
-        return ','.join(self.cleaned_data.get('skills_can_teach', []))
+        skills = self.cleaned_data.get('skills_can_teach', [])
+        return ','.join(skills)
 
     def clean_skills_want_to_learn(self):
-        return ','.join(self.cleaned_data.get('skills_want_to_learn', []))
+        skills = self.cleaned_data.get('skills_want_to_learn', [])
+        return ','.join(skills)

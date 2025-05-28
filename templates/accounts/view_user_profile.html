@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}{{ target_user.username }}'s Profile{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card p-4 shadow-sm">
+        <h2>{{ target_user.username }}</h2>
+        <p><strong>Bio:</strong> {{ target_user.bio }}</p>
+        <p><strong>Skills (Teach):</strong> {{ target_user.skills_can_teach }}</p>
+        <p><strong>Skills (Learn):</strong> {{ target_user.skills_want_to_learn }}</p>
+        <p><strong>City:</strong> {{ target_user.city }}</p>
+        <p><strong>Category:</strong> {{ target_user.category }}</p>
+        <p><strong>Dojo Level:</strong> {{ target_user.dojo_level }}</p>
+
+        {% if avg_rating %}
+        <p><strong>Avg Rating:</strong> {{ avg_rating|floatformat:1 }} ⭐</p>
+        {% endif %}
+
+        <a href="{% url 'conversation' target_user.id %}" class="btn btn-sm btn-outline-primary">💬 Chat</a>
+    </div>
+
+    <div class="mt-4">
+        <h4>Received Ratings</h4>
+        {% for rating in ratings %}
+        <div class="border-bottom py-2">
+            <strong>{{ rating.rater.username }}</strong> - {{ rating.score }}⭐
+            <p>{{ rating.comment }}</p>
+        </div>
+        {% empty %}
+        <p class="text-muted">No ratings yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -4,13 +4,13 @@
 {% block title %}Register{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-md-8 col-lg-6">
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 90vh;">
+    <div class="col-md-8 col-lg-7">
         <div class="card shadow-sm border-success">
             <div class="card-header bg-success text-white">
-                <h4 class="mb-0"><i class="fas fa-user-plus me-2"></i> Register</h4>
+                <h4 class="mb-0"><i class="fas fa-user-plus me-2"></i> Create Your SkillMeet Account</h4>
             </div>
-            <div class="card-body bg-light">
+            <div class="card-body bg-white">
 
                 {% if form.errors %}
                 <div class="alert alert-danger">
@@ -27,7 +27,7 @@
                 </div>
                 {% endif %}
 
-                <form method="post" enctype="multipart/form-data" novalidate>
+                <form method="post" enctype="multipart/form-data" novalidate id="register-form">
                     {% csrf_token %}
 
                     <div class="form-group mb-3">
@@ -50,23 +50,25 @@
                         {{ form.profile_image|add_class:"form-control" }}
                     </div>
 
-                    <div class="form-group mb-3">
-                        {{ form.skills_can_teach.label_tag }}
-                        {{ form.skills_can_teach|add_class:"form-select" }}
-                        <small class="form-text text-muted">
-                            Hold Ctrl (Windows) or Cmd (Mac) to select multiple options.
-                        </small>
+                    <!-- Skills You Can Teach -->
+                    <label class="form-label"><strong>Skills You Can Teach</strong></label>
+                    <div class="skill-selector" id="teach-selector">
+                        {% for skill in skill_options %}
+                        <div class="skill-option{% if skill.value in selected_teach %} selected{% endif %}"
+                            data-skill="{{ skill.value }}">{{ skill.label }}</div>
+                        {% endfor %}
                     </div>
 
-                    <div class="form-group mb-3">
-                        {{ form.skills_want_to_learn.label_tag }}
-                        {{ form.skills_want_to_learn|add_class:"form-select" }}
-                        <small class="form-text text-muted">
-                            Hold Ctrl (Windows) or Cmd (Mac) to select multiple options.
-                        </small>
+                    <!-- Skills You Want to Learn -->
+                    <label class="form-label mt-3"><strong>Skills You Want to Learn</strong></label>
+                    <div class="skill-selector" id="learn-selector">
+                        {% for skill in skill_options %}
+                        <div class="skill-option{% if skill.value in selected_learn %} selected{% endif %}"
+                            data-skill="{{ skill.value }}">{{ skill.label }}</div>
+                        {% endfor %}
                     </div>
 
-                    <div class="form-group mb-3">
+                    <div class="form-group mb-3 mt-4">
                         {{ form.city.label_tag }}
                         {{ form.city|add_class:"form-select" }}
                     </div>
@@ -81,13 +83,92 @@
                         {{ form.password2|add_class:"form-control" }}
                     </div>
 
-                    <button type="submit" class="btn btn-success w-100">
-                        <i class="fas fa-user-check me-1"></i> Sign Up
-                    </button>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-user-check me-1"></i> Register
+                        </button>
+                    </div>
                 </form>
-
+            </div>
+            <div class="card-footer text-center bg-light">
+                <small>Already have an account? <a href="{% url 'login' %}">Login here</a></small>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .skill-selector {
+        max-height: 150px;
+        overflow-y: auto;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        padding: 6px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        background-color: #f8f9fa;
+    }
+
+    .skill-option {
+        padding: 6px 14px;
+        border-radius: 20px;
+        border: 1px solid #adb5bd;
+        background-color: white;
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.15s ease-in-out;
+    }
+
+    .skill-option:hover {
+        background-color: #e9ecef;
+    }
+
+    .skill-option.selected {
+        background-color: #198754;
+        color: white;
+        border-color: #198754;
+    }
+</style>
+
+<script>
+    function setupSkillSelector(containerId, formId, fieldName) {
+        const container = document.getElementById(containerId);
+        const form = document.getElementById(formId);
+
+        container.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('skill-option')) return;
+
+            e.target.classList.toggle('selected');
+
+            // Remove existing hidden inputs for this field
+            const oldInputs = form.querySelectorAll(`input[name="${fieldName}"]`);
+            oldInputs.forEach(input => input.remove());
+
+            // Add hidden inputs for all selected skills
+            const selectedSkills = [...container.querySelectorAll('.selected')].map(el => el.dataset.skill);
+            selectedSkills.forEach(skill => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = fieldName;
+                input.value = skill;
+                form.appendChild(input);
+            });
+        });
+
+        // On page load, add hidden inputs for pre-selected skills
+        const preSelected = [...container.querySelectorAll('.selected')].map(el => el.dataset.skill);
+        preSelected.forEach(skill => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = fieldName;
+            input.value = skill;
+            form.appendChild(input);
+        });
+    }
+
+    setupSkillSelector('teach-selector', 'register-form', 'skills_can_teach');
+    setupSkillSelector('learn-selector', 'register-form', 'skills_want_to_learn');
+</script>
+
 {% endblock %}

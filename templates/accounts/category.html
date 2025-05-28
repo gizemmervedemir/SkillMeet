@@ -4,26 +4,57 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2 class="mb-4">Users in "{{ category|title }}" Category</h2>
+    <h2 class="mb-4">🔎 Users in <span class="text-primary">"{{ category|title }}"</span> Category</h2>
 
     {% if users %}
     <div class="row">
         {% for user in users %}
         <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h5 class="card-title">{{ user.username }}</h5>
-                    <p class="card-text"><strong>Can Teach:</strong> {{ user.skills_can_teach }}</p>
-                    <p class="card-text"><strong>Wants to Learn:</strong> {{ user.skills_want_to_learn }}</p>
-                    <p class="card-text"><strong>City:</strong> {{ user.city }}</p>
-                    <a href="{% url 'send_match_request' user.id %}" class="btn btn-outline-success btn-sm">➕ Match</a>
+            <div class="card shadow-sm h-100 border-info">
+                <div class="card-body text-center d-flex flex-column align-items-center">
+                    {% if user.profile_image %}
+                    <img src="{{ user.profile_image.url }}" alt="{{ user.username }}"
+                        class="rounded-circle shadow-sm mb-3" style="width: 90px; height: 90px; object-fit: cover;">
+                    {% else %}
+                    <img src="{{ MEDIA_URL }}profile_images/default_avatar.png" alt="Default Avatar"
+                        class="rounded-circle shadow-sm mb-3" style="width: 90px; height: 90px; object-fit: cover;">
+                    {% endif %}
+
+                    <h5 class="card-title fw-bold">{{ user.username }}</h5>
+                    <p class="card-text small mb-3">
+                        <strong>City:</strong> {{ user.city }}<br>
+                        <strong>Can Teach:</strong> <code>{{ user.skills_can_teach|default:"(None)" }}</code><br>
+                        <strong>Wants to Learn:</strong> <code>{{ user.skills_want_to_learn|default:"(None)" }}</code>
+                    </p>
+
+                    <div class="d-grid gap-2 w-100">
+                        <a href="{% url 'view_user_profile' user.id %}" class="btn btn-sm btn-outline-secondary">
+                            👤 View Profile
+                        </a>
+                        <form method="post" action="{% url 'send_match_request' user.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="message"
+                                value="Hi {{ user.username }}, I’d love to connect and learn together!">
+                            <button type="submit" class="btn btn-sm btn-outline-primary">
+                                🤝 Send Match Request
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
         {% endfor %}
     </div>
     {% else %}
-    <p class="text-muted">No users found in this category.</p>
+    <div class="alert alert-info shadow-sm">
+        No users found in this category. Try a different category or update your skills.
+    </div>
     {% endif %}
+
+    <div class="mt-4">
+        <a href="{% url 'profile' %}" class="btn btn-secondary">
+            ← Back to Profile
+        </a>
+    </div>
 </div>
 {% endblock %}
