@@ -10,7 +10,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # -------------------------------
 SECRET_KEY = "django-insecure-o2-w(r_a#)f05fk@-56e!dlpu=!5%@n@j93(6y^s$5^cu#vvrw"
 DEBUG = True
-ALLOWED_HOSTS = []
+
+ALLOWED_HOSTS = ['skillmeet.onrender.com', 'localhost', '127.0.0.1']
 
 # -------------------------------
 # INSTALLED APPS
@@ -55,7 +56,7 @@ ROOT_URLCONF = "SkillMeet.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],  # Global templates directory
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -63,7 +64,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "accounts.context_processors.chat_partners",   # <<== Buraya eklendi
+                "accounts.context_processors.chat_partners",
             ],
         },
     },
@@ -131,7 +132,7 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # -------------------------------
-# MEDIA FILES (Profile images, uploads)
+# MEDIA FILES
 # -------------------------------
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
