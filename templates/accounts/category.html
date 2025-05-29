@@ -12,9 +12,10 @@
         <div class="col-md-6 col-lg-4 mb-4">
             <div class="card shadow-sm h-100 border-info">
                 <div class="card-body text-center d-flex flex-column align-items-center">
+
                     {% if user.profile_image %}
-                    <img src="{{ user.profile_image.url }}" alt="{{ user.username }}"
-                        class="rounded-circle shadow-sm mb-3" style="width: 90px; height: 90px; object-fit: cover;">
+                    <img src="{{ user.profile_image }}" alt="{{ user.username }}" class="rounded-circle shadow-sm mb-3"
+                        style="width: 90px; height: 90px; object-fit: cover;">
                     {% else %}
                     <img src="{{ MEDIA_URL }}profile_images/default_avatar.png" alt="Default Avatar"
                         class="rounded-circle shadow-sm mb-3" style="width: 90px; height: 90px; object-fit: cover;">
@@ -22,7 +23,7 @@
 
                     <h5 class="card-title fw-bold">{{ user.username }}</h5>
                     <p class="card-text small mb-3">
-                        <strong>City:</strong> {{ user.city }}<br>
+                        <strong>City:</strong> {{ user.city|default:"(Not specified)" }}<br>
                         <strong>Can Teach:</strong> <code>{{ user.skills_can_teach|default:"(None)" }}</code><br>
                         <strong>Wants to Learn:</strong> <code>{{ user.skills_want_to_learn|default:"(None)" }}</code>
                     </p>

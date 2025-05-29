@@ -24,8 +24,11 @@
             <div class="card h-100 shadow-sm border-0">
 
                 {% if partner.logo %}
-                <img src="{{ partner.logo.url }}" class="card-img-top img-fluid p-3" alt="{{ partner.name }}"
+                <img src="{{ partner.logo }}" class="card-img-top img-fluid p-3" alt="{{ partner.name }}"
                     style="max-height: 160px; object-fit: contain;">
+                {% else %}
+                <img src="{{ MEDIA_URL }}partner_logos/default_partner.png" class="card-img-top img-fluid p-3"
+                    alt="Default Logo" style="max-height: 160px; object-fit: contain;">
                 {% endif %}
 
                 <div class="card-body">
@@ -56,8 +59,9 @@
                         </button>
                     </form>
                     {% else %}
-                    <p class="text-muted mt-2 small">🔒 Only available for users with Blue Belt, Red Belt or Master
-                        level.</p>
+                    <p class="text-muted mt-2 small">
+                        🔒 Only available for users with Blue Belt, Red Belt or Master level.
+                    </p>
                     {% endif %}
                     {% endif %}
                 </div>

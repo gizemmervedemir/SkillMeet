@@ -118,8 +118,8 @@
         <h5 class="mb-0">👤 Your Profile</h5>
     </div>
     <div class="card-body bg-light profile-info">
-        {% if user.profile_image and user.profile_image.url %}
-        <img src="{{ user.profile_image.url }}" alt="Profile Image" class="profile-pic">
+        {% if user.profile_image %}
+        <img src="{{ user.profile_image }}" alt="Profile Image" class="profile-pic">
         {% else %}
         <img src="{{ MEDIA_URL }}profile_images/default_pikachu.png" alt="Default Profile" class="profile-pic">
         {% endif %}
@@ -131,7 +131,6 @@
             <span class="dojo-badge {{ user.dojo_level|slugify }}">{{ user.dojo_level }}</span>
         </p>
 
-        {# Gelen match requestleri #}
         {% if match_requests %}
         <h4 class="section-title">📥 Incoming Match Requests</h4>
         <ul class="list-group mb-4">
@@ -152,7 +151,6 @@
         </ul>
         {% endif %}
 
-        {# Kabul edilmiş eşleşmeler #}
         {% if match_requests_received %}
         <h4 class="section-title">✅ Accepted Matches</h4>
         <ul class="list-group mb-4">
@@ -190,7 +188,6 @@
             {% endif %}
             {% endfor %}
 
-            <!-- Skills You Can Teach -->
             <label class="form-label mt-3"><strong>Skills You Can Teach</strong></label>
             <div class="skill-selector" id="teach-selector">
                 {% for skill in skill_options %}
@@ -199,7 +196,6 @@
                 {% endfor %}
             </div>
 
-            <!-- Skills You Want to Learn -->
             <label class="form-label mt-3"><strong>Skills You Want to Learn</strong></label>
             <div class="skill-selector" id="learn-selector">
                 {% for skill in skill_options %}
@@ -223,11 +219,9 @@
 
             e.target.classList.toggle('selected');
 
-            // Remove existing hidden inputs for this field
             const oldInputs = form.querySelectorAll(`input[name="${fieldName}"]`);
             oldInputs.forEach(input => input.remove());
 
-            // Add hidden inputs for all selected skills
             const selectedSkills = [...container.querySelectorAll('.selected')].map(el => el.dataset.skill);
             selectedSkills.forEach(skill => {
                 const input = document.createElement('input');
@@ -238,7 +232,6 @@
             });
         });
 
-        // On page load, add hidden inputs for pre-selected skills
         const preSelected = [...container.querySelectorAll('.selected')].map(el => el.dataset.skill);
         preSelected.forEach(skill => {
             const input = document.createElement('input');

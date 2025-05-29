@@ -3,7 +3,16 @@
 
 {% block content %}
 <div class="container mt-4">
-    <div class="card p-4 shadow-sm">
+    <div class="card p-4 shadow-sm text-center">
+        <!-- 👤 Kullanıcının profil fotoğrafı -->
+        {% if target_user.profile_image %}
+        <img src="{{ target_user.profile_image }}" alt="{{ target_user.username }}'s Photo" class="rounded-circle mb-3"
+            style="width: 120px; height: 120px; object-fit: cover; border: 2px solid #ccc;">
+        {% else %}
+        <img src="{{ MEDIA_URL }}profile_images/default_avatar.png" alt="Default Profile" class="rounded-circle mb-3"
+            style="width: 120px; height: 120px; object-fit: cover; border: 2px solid #ccc;">
+        {% endif %}
+
         <h2>{{ target_user.username }}</h2>
         <p><strong>Bio:</strong> {{ target_user.bio }}</p>
         <p><strong>Skills (Teach):</strong> {{ target_user.skills_can_teach }}</p>

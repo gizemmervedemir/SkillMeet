@@ -6,14 +6,9 @@ from django.conf import settings
 class CustomUser(AbstractUser):
     bio = models.TextField(blank=True)
 
-    profile_image = models.ImageField(
-        upload_to='profile_images/',
-        default='profile_images/default_avatar.png',
-        blank=True,
-        null=True
-    )
+    # ✅ Artık Cloudinary URL’leri sakladığımız için ImageField yerine URLField kullanıyoruz
+    profile_image = models.URLField(blank=True, null=True)
 
-    # Skills stored as comma-separated strings
     skills_can_teach = models.TextField(blank=True)
     skills_want_to_learn = models.TextField(blank=True)
 
@@ -31,7 +26,6 @@ class CustomUser(AbstractUser):
     city = models.CharField(max_length=100, choices=CITY_CHOICES, default='Kadıköy')
 
     is_approved = models.BooleanField(default=True)
-
     dojo_level = models.CharField(max_length=20, default="White Belt")
 
     CATEGORY_CHOICES = [
@@ -74,7 +68,7 @@ class MatchRequest(models.Model):
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_requests')
     receiver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='received_requests')
     message = models.TextField(blank=True)
-    is_accepted = models.BooleanField(null=True)  # None = pending, True = accepted, False = rejected
+    is_accepted = models.BooleanField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -112,7 +106,7 @@ class MeetingProposal(models.Model):
 class Rating(models.Model):
     rater = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='given_ratings')
     rated_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='received_ratings')
-    score = models.IntegerField()  # Rating score 1 to 5
+    score = models.IntegerField()
     comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -123,7 +117,7 @@ class Rating(models.Model):
 class MatchFeedback(models.Model):
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='feedback_sent')
     receiver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='feedback_received')
-    rating = models.IntegerField()  # 1 to 5
+    rating = models.IntegerField()
     comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -159,7 +153,10 @@ class PartnerCompany(models.Model):
     discount_details = models.TextField(blank=True)
     is_active = models.BooleanField(default=True)
     type = models.CharField(max_length=20, choices=TYPE_CHOICES, default="company")
-    logo = models.ImageField(upload_to='partner_logos/', blank=True, null=True)
+
+    # ✅ Cloudinary URL artık burada da URLField
+    logo = models.URLField(blank=True, null=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -179,7 +176,10 @@ class Venue(models.Model):
     available_for_teaching = models.BooleanField(default=True)
     contact_person = models.CharField(max_length=255, blank=True)
     contact_email = models.EmailField(blank=True)
-    logo = models.ImageField(upload_to="venue_logos/", blank=True, null=True)
+
+    # ✅ Cloudinary URL
+    logo = models.URLField(blank=True, null=True)
+
     is_active = models.BooleanField(default=True)
     type = models.CharField(max_length=20, choices=VENUE_TYPE_CHOICES, default="place")
 
