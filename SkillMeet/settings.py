@@ -129,7 +129,10 @@ LOGOUT_REDIRECT_URL = "/accounts/login/"
 # STATIC FILES
 # -------------------------------
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+    BASE_DIR / "media",  # sadece okumak için
+]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # -------------------------------
