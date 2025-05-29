@@ -94,18 +94,10 @@ DATABASES = {
 # PASSWORD VALIDATION
 # -------------------------------
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"
-    },
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 # -------------------------------
@@ -133,21 +125,22 @@ LOGOUT_REDIRECT_URL = "/accounts/login/"
 # STATIC FILES
 # -------------------------------
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [
-    BASE_DIR / "static"
-]
+STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # -------------------------------
-# CLOUDINARY MEDIA CONFIGURATION
+# MEDIA FILES (Cloudinary for uploads)
 # -------------------------------
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': 'dxkgdz4hb',
     'API_KEY': '877698811943697',
     'API_SECRET': '5Vnr5WYZB6nV1MV5qtcsqPqvt9A',
 }
-
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+# Optional: local MEDIA_ROOT for compatibility in dev scripts
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 # -------------------------------
 # DEFAULT PRIMARY KEY FIELD TYPE
