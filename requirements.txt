@@ -8,4 +8,4 @@ scikit-learn>=1.4.2
 sqlparse==0.5.3
 numpy>=1.26.4
 psycopg2-binary==2.9.10
-tzdata>=2024.1
+tzdata>=2024.1whitenoise==6.9.0

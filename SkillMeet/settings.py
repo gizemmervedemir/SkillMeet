@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY
 # -------------------------------
 SECRET_KEY = "django-insecure-o2-w(r_a#)f05fk@-56e!dlpu=!5%@n@j93(6y^s$5^cu#vvrw"
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['skillmeet.onrender.com', 'localhost', '127.0.0.1']
 
@@ -37,6 +37,7 @@ INSTALLED_APPS = [
 # -------------------------------
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",

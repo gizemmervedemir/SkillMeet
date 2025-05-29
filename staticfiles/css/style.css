@@ -1,0 +1,314 @@
+/* Base Styling */
+body.dark-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+body.light-mode {
+    background-color: #f4f6f9;
+    color: #212529;
+}
+
+body {
+    font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+    padding-top: 70px;
+    transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* Cards */
+.card {
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+body.dark-mode .card {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+body.light-mode .card {
+    background-color: #fff;
+    color: #212529;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.card-header,
+.card-body,
+.card-footer {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark-mode .card-header,
+body.dark-mode .card-body,
+body.dark-mode .card-footer {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+body.light-mode .card-header,
+body.light-mode .card-body,
+body.light-mode .card-footer {
+    background-color: #fff;
+    color: #212529;
+}
+
+/* Inputs */
+input,
+select,
+textarea {
+    border-radius: 8px !important;
+    padding: 10px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+    background-color: #2c2c2c;
+    color: #f8f9fa;
+    border: 1px solid #444;
+}
+
+body.light-mode input,
+body.light-mode select,
+body.light-mode textarea {
+    background-color: #fff;
+    color: #212529;
+    border: 1px solid #ced4da;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #198754;
+    box-shadow: 0 0 6px rgba(25, 135, 84, 0.4);
+    outline: none;
+}
+
+/* Forms */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    margin-bottom: 0.4rem;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+body.dark-mode .form-group label {
+    color: #ccc;
+}
+
+body.light-mode .form-group label {
+    color: #212529;
+}
+
+textarea.form-control {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* Buttons */
+.btn-success,
+.btn-outline-success,
+.btn-gradient {
+    border-radius: 10px;
+    font-weight: 600;
+    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.2s ease;
+}
+
+.btn-gradient {
+    background: linear-gradient(to right, #00c6ff, #0072ff);
+    color: #fff;
+    border: none;
+}
+
+.btn-gradient:hover {
+    background: linear-gradient(to right, #0072ff, #0052cc);
+    box-shadow: 0 0 10px rgba(0, 114, 255, 0.4);
+}
+
+/* Section spacing */
+section {
+    padding: 50px 0;
+}
+
+/* Dojo badge system */
+.dojo-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-weight: bold;
+    font-size: 0.9em;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    user-select: none;
+}
+
+.white-belt {
+    background-color: #bbb;
+}
+
+.yellow-belt {
+    background-color: #f1c40f;
+    color: #000;
+}
+
+.blue-belt {
+    background-color: #3498db;
+}
+
+.red-belt {
+    background-color: #e74c3c;
+}
+
+.master {
+    background-color: gold;
+    color: black;
+    animation: glow 1.5s infinite alternate;
+}
+
+@keyframes glow {
+    from {
+        box-shadow: 0 0 6px rgba(255, 215, 0, 0.4);
+    }
+
+    to {
+        box-shadow: 0 0 16px rgba(255, 215, 0, 1);
+    }
+}
+
+/* Alerts & Notifications */
+.alert,
+.notification-banner {
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark Mode Alert Overrides */
+body.dark-mode .alert,
+body.dark-mode .alert-info,
+body.dark-mode .alert-warning,
+body.dark-mode .alert-danger,
+body.dark-mode .alert-success,
+body.dark-mode .notification-banner {
+    background-color: #1e1e1e;
+    color: #f1f1f1;
+    border-left: 4px solid #ffc107;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.05);
+}
+
+/* Light Mode Alert */
+body.light-mode .alert,
+body.light-mode .alert-info,
+body.light-mode .alert-warning,
+body.light-mode .alert-danger,
+body.light-mode .alert-success,
+body.light-mode .notification-banner {
+    background-color: #fff3cd;
+    color: #212529;
+    border-left: 4px solid #ffc107;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Chat */
+.chat-message {
+    padding: 10px 15px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    max-width: 75%;
+    word-wrap: break-word;
+    line-height: 1.4;
+    font-size: 1rem;
+}
+
+.chat-message.you {
+    background-color: #198754;
+    color: #fff;
+    align-self: flex-end;
+    text-align: right;
+}
+
+body.dark-mode .chat-message.them {
+    background-color: #333;
+    color: #f1f1f1;
+}
+
+body.light-mode .chat-message.them {
+    background-color: #e9ecef;
+    color: #212529;
+}
+
+/* Utilities */
+.text-small {
+    font-size: 0.85rem;
+    color: #a0a0a0;
+}
+
+/* Partner Card */
+.partner-card {
+    transition: all 0.3s ease-in-out;
+}
+
+.partner-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Navbar */
+.navbar {
+    transition: background-color 0.3s ease;
+}
+
+body.dark-mode .navbar {
+    background-color: #000 !important;
+}
+
+body.light-mode .navbar {
+    background-color: #fff !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .chat-message {
+        max-width: 100%;
+    }
+
+    .form-group {
+        width: 100%;
+    }
+}
+
+/* Toggle Button */
+#themeToggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(to right, #00c6ff, #0072ff);
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 20px rgba(0, 114, 255, 0.4);
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+#themeToggle:hover {
+    background: linear-gradient(to right, #0072ff, #0052cc);
+}
