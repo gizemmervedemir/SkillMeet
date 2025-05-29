@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 
 # -------------------------------
 # BASE DIRECTORY
@@ -17,13 +18,16 @@ ALLOWED_HOSTS = ['skillmeet.onrender.com', 'localhost', '127.0.0.1']
 # INSTALLED APPS
 # -------------------------------
 INSTALLED_APPS = [
-    # Django apps
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+
+    # Cloudinary apps
+    "cloudinary",
+    "cloudinary_storage",
 
     # Third-party apps
     "widget_tweaks",
@@ -130,16 +134,20 @@ LOGOUT_REDIRECT_URL = "/accounts/login/"
 # -------------------------------
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [
-    BASE_DIR / "static",
-    BASE_DIR / "media",  # sadece okumak için
+    BASE_DIR / "static"
 ]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # -------------------------------
-# MEDIA FILES
+# CLOUDINARY MEDIA CONFIGURATION
 # -------------------------------
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'dxkgdz4hb',
+    'API_KEY': '877698811943697',
+    'API_SECRET': '5Vnr5WYZB6nV1MV5qtcsqPqvt9A',
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # -------------------------------
 # DEFAULT PRIMARY KEY FIELD TYPE

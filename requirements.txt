@@ -10,3 +10,5 @@ numpy>=1.26.4
 psycopg2-binary==2.9.10
 tzdata>=2024.1whitenoise==6.9.0
 
+cloudinary==1.44.0
+django-cloudinary-storage==0.3.0
